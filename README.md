@@ -150,8 +150,8 @@ ruoyi-eggjs/
 ### 1. 克隆项目
 
 ```bash
-git clone https://github.com/undsky/ruoyi-eggjs.git
-cd ruoyi-eggjs
+git clone https://github.com/stevenzh/RuoYi-Eggjs.git
+cd RuoYi-Eggjs
 ```
 
 ### 2. 安装依赖
@@ -162,21 +162,20 @@ npm install
 
 ### 3. 导入数据库
 
-项目支持 MySQL 数据库，SQL 脚本位于 `sql/` 目录下：
+项目支持 Mongo 数据库，SQL 脚本位于 `sql/` 目录下：
 
 ```
-sql/
-└── mysql/     # MySQL 初始化脚本
+sql/   # Mongo 初始化脚本
 ```
 
-#### MySQL
+#### Mongo
 
-```sql
+```
 -- 创建数据库
-CREATE DATABASE IF NOT EXISTS ruoyi DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_general_ci;
+Navicat Premium 连接Mongo服务，创建数据库 ruoyi
 
 -- 导入数据表和数据
-mysql -u root -p ruoyi < sql/mysql/ry_20250522.sql
+选择数据库右键 Excute JavaScript File.. 选择文件 sql/mysql/ry_20250522.sql 后执行
 ```
 
 ### 4. 配置数据库和 Redis
@@ -186,14 +185,16 @@ mysql -u root -p ruoyi < sql/mysql/ry_20250522.sql
 #### MySQL 配置
 
 ```javascript
-config.mysql = {
-  camelCase: true, // 启用驼峰命名转换：user_name -> userName
-  clients: {
-    ruoyi: {
-      host: "127.0.0.1",
-      user: "root",
-      password: "your_password",
-      database: "ruoyi",
+config.mongoose = {
+  client: {
+    url: 'mongodb://username:password@127.0.0.1:27017/ruoyi?authSource=admin',
+    options: {
+      maxPoolSize: 10,
+      minPoolSize: 2,
+      serverSelectionTimeoutMS: 15000,
+      socketTimeoutMS: 45000,
+      useUnifiedTopology: true,
+      useNewUrlParser: true,
     },
   },
 };
@@ -214,7 +215,6 @@ const redis = {
 
 #### 开发模式
 
-开发模式会自动启动 Mapper 代码生成器和调试服务：
 
 ```bash
 npm run dev
@@ -235,9 +235,6 @@ npm stop
 ```bash
 # 开发模式（自动生成 Mapper + 调试）
 npm run dev
-
-# 仅生成 Mapper 代码
-npm run mapper
 
 # 仅启动调试服务
 npm run debug
@@ -327,11 +324,11 @@ server {
 
 - [若依（RuoYi）](https://gitee.com/y_project/RuoYi-Vue) - 优秀的开源后台管理系统
 - [Egg.js](https://eggjs.org) - 企业级 Node.js 框架
+- [姜彦汐][https://www.undsky.com](https://www.undsky.com)
 - 所有贡献者
 
 ## 📞 联系方式
 
-- 网站：[https://www.undsky.com](https://www.undsky.com)
-- GitHub：[https://github.com/undsky/ruoyi-eggjs](https://github.com/undsky/ruoyi-eggjs)
-- Issues：[https://github.com/undsky/ruoyi-eggjs/issues](https://github.com/undsky/ruoyi-eggjs/issues)
+- 网站：[https://www.opentravelsoft.cn](https://www.www.opentravelsoft.cn)
+- GitHub：[https://github.com/stevenzh/RuoYi-Eggjs](https://github.com/stevenzh/RuoYi-Eggjs)
 

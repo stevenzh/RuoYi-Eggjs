@@ -1,0 +1,4108 @@
+/*
+ Navicat Premium Dump Script
+
+ Source Server         : 124.220.97.171
+ Source Server Type    : MongoDB
+ Source Server Version : 40223 (4.2.23)
+ Source Host           : 124.220.97.171:27017
+ Source Schema         : ruoyi
+
+ Target Server Type    : MongoDB
+ Target Server Version : 40223 (4.2.23)
+ File Encoding         : 65001
+
+ Date: 04/09/2026 17:00:15
+*/
+
+
+// ----------------------------
+// Collection structure for gen_table
+// ----------------------------
+db.getCollection("gen_table").drop();
+db.createCollection("gen_table");
+db.getCollection("gen_table").createIndex({
+    tableName: Int32("1")
+}, {
+    name: "tableName_1",
+    background: true
+});
+
+// ----------------------------
+// Documents of gen_table
+// ----------------------------
+
+// ----------------------------
+// Collection structure for gen_table_column
+// ----------------------------
+db.getCollection("gen_table_column").drop();
+db.createCollection("gen_table_column");
+db.getCollection("gen_table_column").createIndex({
+    tableId: Int32("1")
+}, {
+    name: "tableId_1",
+    background: true
+});
+db.getCollection("gen_table_column").createIndex({
+    sort: Int32("1")
+}, {
+    name: "sort_1",
+    background: true
+});
+
+// ----------------------------
+// Documents of gen_table_column
+// ----------------------------
+
+// ----------------------------
+// Collection structure for sys_config
+// ----------------------------
+db.getCollection("sys_config").drop();
+db.createCollection("sys_config");
+db.getCollection("sys_config").createIndex({
+    configKey: Int32("1")
+}, {
+    name: "configKey_1",
+    background: true,
+    unique: true
+});
+
+// ----------------------------
+// Documents of sys_config
+// ----------------------------
+db.getCollection("sys_config").insert([ {
+    _id: ObjectId("6a51b936ba7fa0883e003c21"),
+    remark: "蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow",
+    configId: Int32("1"),
+    configKey: "sys.index.skinName",
+    configName: "主框架页-默认皮肤样式名称",
+    configType: "Y",
+    configValue: "skin-blue",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:45.000Z"),
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_config").insert([ {
+    _id: ObjectId("6a51b936ba7fa0883e003c22"),
+    remark: "初始化密码 123456",
+    configId: Int32("2"),
+    configKey: "sys.user.initPassword",
+    configName: "用户管理-账号初始密码",
+    configType: "Y",
+    configValue: "123456",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:45.000Z"),
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_config").insert([ {
+    _id: ObjectId("6a51b936ba7fa0883e003c23"),
+    remark: "深色主题theme-dark，浅色主题theme-light",
+    configId: Int32("3"),
+    configKey: "sys.index.sideTheme",
+    configName: "主框架页-侧边栏主题",
+    configType: "Y",
+    configValue: "theme-dark",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:45.000Z"),
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_config").insert([ {
+    _id: ObjectId("6a51b936ba7fa0883e003c24"),
+    remark: "是否开启验证码功能（true开启，false关闭）",
+    configId: Int32("4"),
+    configKey: "sys.account.captchaEnabled",
+    configName: "账号自助-验证码开关",
+    configType: "Y",
+    configValue: "true",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:45.000Z"),
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_config").insert([ {
+    _id: ObjectId("6a51b936ba7fa0883e003c25"),
+    remark: "是否开启注册用户功能（true开启，false关闭）",
+    configId: Int32("5"),
+    configKey: "sys.account.registerUser",
+    configName: "账号自助-是否开启用户注册功能",
+    configType: "Y",
+    configValue: "false",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:45.000Z"),
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_config").insert([ {
+    _id: ObjectId("6a51b936ba7fa0883e003c26"),
+    remark: "设置登录IP黑名单限制，多个匹配项以;分隔，支持匹配（*通配、网段）",
+    configId: Int32("6"),
+    configKey: "sys.login.blackIPList",
+    configName: "用户登录-黑名单列表",
+    configType: "Y",
+    configValue: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:45.000Z"),
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_config").insert([ {
+    _id: ObjectId("6a51b936ba7fa0883e003c27"),
+    remark: "0：初始密码修改策略关闭，没有任何提示，1：提醒用户，如果未修改初始密码，则在登录时就会提醒修改密码对话框",
+    configId: Int32("7"),
+    configKey: "sys.account.initPasswordModify",
+    configName: "用户管理-初始密码修改策略",
+    configType: "Y",
+    configValue: "1",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:45.000Z"),
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_config").insert([ {
+    _id: ObjectId("6a51b936ba7fa0883e003c28"),
+    remark: "密码更新周期（填写数字，数据初始化值为0不限制，若修改必须为大于0小于365的正整数），如果超过这个周期登录系统时，则在登录时就会提醒修改密码对话框",
+    configId: Int32("8"),
+    configKey: "sys.account.passwordValidateDays",
+    configName: "用户管理-账号密码更新周期",
+    configType: "Y",
+    configValue: "0",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:45.000Z"),
+    updateBy: "",
+    updateTime: null
+} ]);
+
+// ----------------------------
+// Collection structure for sys_dept
+// ----------------------------
+db.getCollection("sys_dept").drop();
+db.createCollection("sys_dept");
+db.getCollection("sys_dept").createIndex({
+    parentId: Int32("1")
+}, {
+    name: "parentId_1",
+    background: true
+});
+db.getCollection("sys_dept").createIndex({
+    delFlag: Int32("1"),
+    status: Int32("1")
+}, {
+    name: "delFlag_1_status_1",
+    background: true
+});
+db.getCollection("sys_dept").createIndex({
+    ancestors: Int32("1")
+}, {
+    name: "ancestors_1",
+    background: true
+});
+
+// ----------------------------
+// Documents of sys_dept
+// ----------------------------
+db.getCollection("sys_dept").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c46"),
+    ancestors: [
+        "0"
+    ],
+    leader: "若依",
+    phone: "15888888888",
+    email: "ry@qq.com",
+    status: "0",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:40.000Z"),
+    delFlag: "0",
+    deptName: "若依科技",
+    orderNum: Int32("0"),
+    parentId: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dept").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c47"),
+    ancestors: [
+        "0",
+        "6a51b938ba7fa0883e003c46"
+    ],
+    leader: "若依",
+    phone: "15888888888",
+    email: "ry@qq.com",
+    status: "0",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:40.000Z"),
+    delFlag: "0",
+    deptName: "深圳总公司",
+    orderNum: Int32("1"),
+    parentId: ObjectId("6a51b938ba7fa0883e003c46"),
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dept").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c48"),
+    ancestors: [
+        "0",
+        "6a51b938ba7fa0883e003c46"
+    ],
+    leader: "若依",
+    phone: "15888888888",
+    email: "ry@qq.com",
+    status: "0",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:40.000Z"),
+    delFlag: "0",
+    deptName: "长沙分公司",
+    orderNum: Int32("2"),
+    parentId: ObjectId("6a51b938ba7fa0883e003c46"),
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dept").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c49"),
+    ancestors: [
+        "0",
+        "6a51b938ba7fa0883e003c46",
+        "6a51b938ba7fa0883e003c47"
+    ],
+    leader: "若依",
+    phone: "15888888888",
+    email: "ry@qq.com",
+    status: "0",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:40.000Z"),
+    delFlag: "0",
+    deptName: "研发部门",
+    orderNum: Int32("1"),
+    parentId: ObjectId("6a51b938ba7fa0883e003c47"),
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dept").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c4a"),
+    ancestors: [
+        "0",
+        "6a51b938ba7fa0883e003c46",
+        "6a51b938ba7fa0883e003c47"
+    ],
+    leader: "若依",
+    phone: "15888888888",
+    email: "ry@qq.com",
+    status: "0",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:40.000Z"),
+    delFlag: "0",
+    deptName: "市场部门",
+    orderNum: Int32("2"),
+    parentId: ObjectId("6a51b938ba7fa0883e003c47"),
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dept").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c4b"),
+    ancestors: [
+        "0",
+        "6a51b938ba7fa0883e003c46",
+        "6a51b938ba7fa0883e003c47"
+    ],
+    leader: "若依",
+    phone: "15888888888",
+    email: "ry@qq.com",
+    status: "0",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:40.000Z"),
+    delFlag: "0",
+    deptName: "测试部门",
+    orderNum: Int32("3"),
+    parentId: ObjectId("6a51b938ba7fa0883e003c47"),
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dept").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c4c"),
+    ancestors: [
+        "0",
+        "6a51b938ba7fa0883e003c46",
+        "6a51b938ba7fa0883e003c47"
+    ],
+    leader: "若依",
+    phone: "15888888888",
+    email: "ry@qq.com",
+    status: "0",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:40.000Z"),
+    delFlag: "0",
+    deptName: "财务部门",
+    orderNum: Int32("4"),
+    parentId: ObjectId("6a51b938ba7fa0883e003c47"),
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dept").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c4d"),
+    ancestors: [
+        "0",
+        "6a51b938ba7fa0883e003c46",
+        "6a51b938ba7fa0883e003c47"
+    ],
+    leader: "若依",
+    phone: "15888888888",
+    email: "ry@qq.com",
+    status: "0",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:40.000Z"),
+    delFlag: "0",
+    deptName: "运维部门",
+    orderNum: Int32("5"),
+    parentId: ObjectId("6a51b938ba7fa0883e003c47"),
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dept").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c4e"),
+    ancestors: [
+        "0",
+        "6a51b938ba7fa0883e003c46",
+        "6a51b938ba7fa0883e003c48"
+    ],
+    leader: "若依",
+    phone: "15888888888",
+    email: "ry@qq.com",
+    status: "0",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:40.000Z"),
+    delFlag: "0",
+    deptName: "市场部门",
+    orderNum: Int32("1"),
+    parentId: ObjectId("6a51b938ba7fa0883e003c48"),
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dept").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c4f"),
+    ancestors: [
+        "0",
+        "6a51b938ba7fa0883e003c46",
+        "6a51b938ba7fa0883e003c48"
+    ],
+    leader: "若依",
+    phone: "15888888888",
+    email: "ry@qq.com",
+    status: "0",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:40.000Z"),
+    delFlag: "0",
+    deptName: "财务部门",
+    orderNum: Int32("2"),
+    parentId: ObjectId("6a51b938ba7fa0883e003c48"),
+    updateBy: "",
+    updateTime: null
+} ]);
+
+// ----------------------------
+// Collection structure for sys_dict_data
+// ----------------------------
+db.getCollection("sys_dict_data").drop();
+db.createCollection("sys_dict_data");
+db.getCollection("sys_dict_data").createIndex({
+    dictType: Int32("1")
+}, {
+    name: "dictType_1",
+    background: true
+});
+db.getCollection("sys_dict_data").createIndex({
+    dictSort: Int32("1")
+}, {
+    name: "dictSort_1",
+    background: true
+});
+
+// ----------------------------
+// Documents of sys_dict_data
+// ----------------------------
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c29"),
+    status: "0",
+    remark: "性别男",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("1"),
+    dictLabel: "男",
+    dictSort: Int32("1"),
+    dictType: "sys_user_sex",
+    dictValue: "0",
+    isDefault: "Y",
+    listClass: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c2a"),
+    status: "0",
+    remark: "性别女",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("2"),
+    dictLabel: "女",
+    dictSort: Int32("2"),
+    dictType: "sys_user_sex",
+    dictValue: "1",
+    isDefault: "N",
+    listClass: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c2b"),
+    status: "0",
+    remark: "性别未知",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("3"),
+    dictLabel: "未知",
+    dictSort: Int32("3"),
+    dictType: "sys_user_sex",
+    dictValue: "2",
+    isDefault: "N",
+    listClass: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c2c"),
+    status: "0",
+    remark: "显示菜单",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("4"),
+    dictLabel: "显示",
+    dictSort: Int32("1"),
+    dictType: "sys_show_hide",
+    dictValue: "0",
+    isDefault: "Y",
+    listClass: "primary",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c2d"),
+    status: "0",
+    remark: "隐藏菜单",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("5"),
+    dictLabel: "隐藏",
+    dictSort: Int32("2"),
+    dictType: "sys_show_hide",
+    dictValue: "1",
+    isDefault: "N",
+    listClass: "danger",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c2e"),
+    status: "0",
+    remark: "正常状态",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("6"),
+    dictLabel: "正常",
+    dictSort: Int32("1"),
+    dictType: "sys_normal_disable",
+    dictValue: "0",
+    isDefault: "Y",
+    listClass: "primary",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c2f"),
+    status: "0",
+    remark: "停用状态",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("7"),
+    dictLabel: "停用",
+    dictSort: Int32("2"),
+    dictType: "sys_normal_disable",
+    dictValue: "1",
+    isDefault: "N",
+    listClass: "danger",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c30"),
+    status: "0",
+    remark: "正常状态",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("8"),
+    dictLabel: "正常",
+    dictSort: Int32("1"),
+    dictType: "sys_job_status",
+    dictValue: "0",
+    isDefault: "Y",
+    listClass: "primary",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c31"),
+    status: "0",
+    remark: "停用状态",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("9"),
+    dictLabel: "暂停",
+    dictSort: Int32("2"),
+    dictType: "sys_job_status",
+    dictValue: "1",
+    isDefault: "N",
+    listClass: "danger",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c32"),
+    status: "0",
+    remark: "默认分组",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("10"),
+    dictLabel: "默认",
+    dictSort: Int32("1"),
+    dictType: "sys_job_group",
+    dictValue: "DEFAULT",
+    isDefault: "Y",
+    listClass: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c33"),
+    status: "0",
+    remark: "系统分组",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("11"),
+    dictLabel: "系统",
+    dictSort: Int32("2"),
+    dictType: "sys_job_group",
+    dictValue: "SYSTEM",
+    isDefault: "N",
+    listClass: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c34"),
+    status: "0",
+    remark: "系统默认是",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("12"),
+    dictLabel: "是",
+    dictSort: Int32("1"),
+    dictType: "sys_yes_no",
+    dictValue: "Y",
+    isDefault: "Y",
+    listClass: "primary",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c35"),
+    status: "0",
+    remark: "系统默认否",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("13"),
+    dictLabel: "否",
+    dictSort: Int32("2"),
+    dictType: "sys_yes_no",
+    dictValue: "N",
+    isDefault: "N",
+    listClass: "danger",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c36"),
+    status: "0",
+    remark: "通知",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("14"),
+    dictLabel: "通知",
+    dictSort: Int32("1"),
+    dictType: "sys_notice_type",
+    dictValue: "1",
+    isDefault: "Y",
+    listClass: "warning",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c37"),
+    status: "0",
+    remark: "公告",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("15"),
+    dictLabel: "公告",
+    dictSort: Int32("2"),
+    dictType: "sys_notice_type",
+    dictValue: "2",
+    isDefault: "N",
+    listClass: "success",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c38"),
+    status: "0",
+    remark: "正常状态",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("16"),
+    dictLabel: "正常",
+    dictSort: Int32("1"),
+    dictType: "sys_notice_status",
+    dictValue: "0",
+    isDefault: "Y",
+    listClass: "primary",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c39"),
+    status: "0",
+    remark: "关闭状态",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("17"),
+    dictLabel: "关闭",
+    dictSort: Int32("2"),
+    dictType: "sys_notice_status",
+    dictValue: "1",
+    isDefault: "N",
+    listClass: "danger",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c3a"),
+    status: "0",
+    remark: "其他操作",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("18"),
+    dictLabel: "其他",
+    dictSort: Int32("99"),
+    dictType: "sys_oper_type",
+    dictValue: "0",
+    isDefault: "N",
+    listClass: "info",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c3b"),
+    status: "0",
+    remark: "新增操作",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("19"),
+    dictLabel: "新增",
+    dictSort: Int32("1"),
+    dictType: "sys_oper_type",
+    dictValue: "1",
+    isDefault: "N",
+    listClass: "info",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c3c"),
+    status: "0",
+    remark: "修改操作",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("20"),
+    dictLabel: "修改",
+    dictSort: Int32("2"),
+    dictType: "sys_oper_type",
+    dictValue: "2",
+    isDefault: "N",
+    listClass: "info",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c3d"),
+    status: "0",
+    remark: "删除操作",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("21"),
+    dictLabel: "删除",
+    dictSort: Int32("3"),
+    dictType: "sys_oper_type",
+    dictValue: "3",
+    isDefault: "N",
+    listClass: "danger",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c3e"),
+    status: "0",
+    remark: "授权操作",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("22"),
+    dictLabel: "授权",
+    dictSort: Int32("4"),
+    dictType: "sys_oper_type",
+    dictValue: "4",
+    isDefault: "N",
+    listClass: "primary",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c3f"),
+    status: "0",
+    remark: "导出操作",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("23"),
+    dictLabel: "导出",
+    dictSort: Int32("5"),
+    dictType: "sys_oper_type",
+    dictValue: "5",
+    isDefault: "N",
+    listClass: "warning",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c40"),
+    status: "0",
+    remark: "导入操作",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("24"),
+    dictLabel: "导入",
+    dictSort: Int32("6"),
+    dictType: "sys_oper_type",
+    dictValue: "6",
+    isDefault: "N",
+    listClass: "warning",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c41"),
+    status: "0",
+    remark: "强退操作",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("25"),
+    dictLabel: "强退",
+    dictSort: Int32("7"),
+    dictType: "sys_oper_type",
+    dictValue: "7",
+    isDefault: "N",
+    listClass: "danger",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c42"),
+    status: "0",
+    remark: "生成操作",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("26"),
+    dictLabel: "生成代码",
+    dictSort: Int32("8"),
+    dictType: "sys_oper_type",
+    dictValue: "8",
+    isDefault: "N",
+    listClass: "warning",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c43"),
+    status: "0",
+    remark: "清空操作",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("27"),
+    dictLabel: "清空数据",
+    dictSort: Int32("9"),
+    dictType: "sys_oper_type",
+    dictValue: "9",
+    isDefault: "N",
+    listClass: "danger",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c44"),
+    status: "0",
+    remark: "正常状态",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("28"),
+    dictLabel: "成功",
+    dictSort: Int32("1"),
+    dictType: "sys_common_status",
+    dictValue: "0",
+    isDefault: "N",
+    listClass: "primary",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_data").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c45"),
+    status: "0",
+    remark: "停用状态",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    cssClass: "",
+    dictCode: Long("29"),
+    dictLabel: "失败",
+    dictSort: Int32("2"),
+    dictType: "sys_common_status",
+    dictValue: "1",
+    isDefault: "N",
+    listClass: "danger",
+    updateBy: "",
+    updateTime: null
+} ]);
+
+// ----------------------------
+// Collection structure for sys_dict_type
+// ----------------------------
+db.getCollection("sys_dict_type").drop();
+db.createCollection("sys_dict_type");
+db.getCollection("sys_dict_type").createIndex({
+    dictType: Int32("1")
+}, {
+    name: "dictType"
+});
+
+// ----------------------------
+// Documents of sys_dict_type
+// ----------------------------
+db.getCollection("sys_dict_type").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c50"),
+    status: "0",
+    remark: "用户性别列表",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    dictId: Long("1"),
+    dictName: "用户性别",
+    dictType: "sys_user_sex",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_type").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c51"),
+    status: "0",
+    remark: "菜单状态列表",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    dictId: Long("2"),
+    dictName: "菜单状态",
+    dictType: "sys_show_hide",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_type").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c52"),
+    status: "0",
+    remark: "系统开关列表",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    dictId: Long("3"),
+    dictName: "系统开关",
+    dictType: "sys_normal_disable",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_type").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c53"),
+    status: "0",
+    remark: "任务状态列表",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    dictId: Long("4"),
+    dictName: "任务状态",
+    dictType: "sys_job_status",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_type").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c54"),
+    status: "0",
+    remark: "任务分组列表",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    dictId: Long("5"),
+    dictName: "任务分组",
+    dictType: "sys_job_group",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_type").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c55"),
+    status: "0",
+    remark: "系统是否列表",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    dictId: Long("6"),
+    dictName: "系统是否",
+    dictType: "sys_yes_no",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_type").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c56"),
+    status: "0",
+    remark: "通知类型列表",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    dictId: Long("7"),
+    dictName: "通知类型",
+    dictType: "sys_notice_type",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_type").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c57"),
+    status: "0",
+    remark: "通知状态列表",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    dictId: Long("8"),
+    dictName: "通知状态",
+    dictType: "sys_notice_status",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_type").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c58"),
+    status: "0",
+    remark: "操作类型列表",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    dictId: Long("9"),
+    dictName: "操作类型",
+    dictType: "sys_oper_type",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_dict_type").insert([ {
+    _id: ObjectId("6a51b938ba7fa0883e003c59"),
+    status: "0",
+    remark: "登录状态列表",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:44.000Z"),
+    dictId: Long("10"),
+    dictName: "系统状态",
+    dictType: "sys_common_status",
+    updateBy: "",
+    updateTime: null
+} ]);
+
+// ----------------------------
+// Collection structure for sys_job
+// ----------------------------
+db.getCollection("sys_job").drop();
+db.createCollection("sys_job");
+db.getCollection("sys_job").createIndex({
+    jobName: Int32("1"),
+    jobGroup: Int32("1")
+}, {
+    name: "jobName_1_jobGroup_1",
+    background: true
+});
+db.getCollection("sys_job").createIndex({
+    status: Int32("1")
+}, {
+    name: "status_1",
+    background: true
+});
+
+// ----------------------------
+// Documents of sys_job
+// ----------------------------
+db.getCollection("sys_job").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c5a"),
+    concurrent: "1",
+    status: "1",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:46.000Z"),
+    cronExpression: "0/10 * * * * ?",
+    invokeTarget: "ryTask.ryNoParams",
+    jobGroup: "DEFAULT",
+    jobId: Long("1"),
+    jobName: "系统默认（无参）",
+    misfirePolicy: "3",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_job").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c5b"),
+    concurrent: "1",
+    status: "1",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:46.000Z"),
+    cronExpression: "0/15 * * * * ?",
+    invokeTarget: "ryTask.ryParams('ry')",
+    jobGroup: "DEFAULT",
+    jobId: Long("2"),
+    jobName: "系统默认（有参）",
+    misfirePolicy: "3",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_job").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c5c"),
+    concurrent: "1",
+    status: "1",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:46.000Z"),
+    cronExpression: "0/20 * * * * ?",
+    invokeTarget: "ryTask.ryMultipleParams('ry', true, 2000L, 316.50D, 100)",
+    jobGroup: "DEFAULT",
+    jobId: Long("3"),
+    jobName: "系统默认（多参）",
+    misfirePolicy: "3",
+    updateBy: "",
+    updateTime: null
+} ]);
+
+// ----------------------------
+// Collection structure for sys_job_log
+// ----------------------------
+db.getCollection("sys_job_log").drop();
+db.createCollection("sys_job_log");
+db.getCollection("sys_job_log").createIndex({
+    jobName: Int32("1"),
+    jobGroup: Int32("1")
+}, {
+    name: "jobName_1_jobGroup_1",
+    background: true
+});
+db.getCollection("sys_job_log").createIndex({
+    status: Int32("1")
+}, {
+    name: "status_1",
+    background: true
+});
+db.getCollection("sys_job_log").createIndex({
+    createTime: Int32("-1")
+}, {
+    name: "createTime_-1",
+    background: true
+});
+
+// ----------------------------
+// Documents of sys_job_log
+// ----------------------------
+
+// ----------------------------
+// Collection structure for sys_logininfor
+// ----------------------------
+db.getCollection("sys_logininfor").drop();
+db.createCollection("sys_logininfor");
+db.getCollection("sys_logininfor").createIndex({
+    status: Int32("1")
+}, {
+    name: "idx_sys_logininfor_s"
+});
+db.getCollection("sys_logininfor").createIndex({
+    login_time: Int32("1")
+}, {
+    name: "idx_sys_logininfor_lt"
+});
+db.getCollection("sys_logininfor").createIndex({
+    loginTime: Int32("-1")
+}, {
+    name: "loginTime_-1",
+    background: true
+});
+
+// ----------------------------
+// Documents of sys_logininfor
+// ----------------------------
+
+// ----------------------------
+// Collection structure for sys_menu
+// ----------------------------
+db.getCollection("sys_menu").drop();
+db.createCollection("sys_menu");
+db.getCollection("sys_menu").createIndex({
+    parentId: Int32("1")
+}, {
+    name: "parentId_1",
+    background: true
+});
+db.getCollection("sys_menu").createIndex({
+    orderNum: Int32("1")
+}, {
+    name: "orderNum_1",
+    background: true
+});
+
+// ----------------------------
+// Documents of sys_menu
+// ----------------------------
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c64"),
+    path: "system",
+    component: null,
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "",
+    icon: "system",
+    remark: "系统管理目录",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1"),
+    menuName: "系统管理",
+    menuType: "M",
+    orderNum: Int32("1"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c65"),
+    path: "monitor",
+    component: null,
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "",
+    icon: "monitor",
+    remark: "系统监控目录",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("2"),
+    menuName: "系统监控",
+    menuType: "M",
+    orderNum: Int32("2"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c66"),
+    path: "tool",
+    component: null,
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "",
+    icon: "tool",
+    remark: "系统工具目录",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("3"),
+    menuName: "系统工具",
+    menuType: "M",
+    orderNum: Int32("3"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c68"),
+    path: "user",
+    component: "system/user/index",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:user:list",
+    icon: "user",
+    remark: "用户管理菜单",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("100"),
+    menuName: "用户管理",
+    menuType: "C",
+    orderNum: Int32("1"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c64"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c69"),
+    path: "role",
+    component: "system/role/index",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:role:list",
+    icon: "peoples",
+    remark: "角色管理菜单",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("101"),
+    menuName: "角色管理",
+    menuType: "C",
+    orderNum: Int32("2"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c64"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c6a"),
+    path: "menu",
+    component: "system/menu/index",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:menu:list",
+    icon: "tree-table",
+    remark: "菜单管理菜单",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("102"),
+    menuName: "菜单管理",
+    menuType: "C",
+    orderNum: Int32("3"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c64"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c6b"),
+    path: "dept",
+    component: "system/dept/index",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:dept:list",
+    icon: "tree",
+    remark: "部门管理菜单",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("103"),
+    menuName: "部门管理",
+    menuType: "C",
+    orderNum: Int32("4"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c64"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c6c"),
+    path: "post",
+    component: "system/post/index",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:post:list",
+    icon: "post",
+    remark: "岗位管理菜单",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("104"),
+    menuName: "岗位管理",
+    menuType: "C",
+    orderNum: Int32("5"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c64"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c6d"),
+    path: "dict",
+    component: "system/dict/index",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:dict:list",
+    icon: "dict",
+    remark: "字典管理菜单",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("105"),
+    menuName: "字典管理",
+    menuType: "C",
+    orderNum: Int32("6"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c64"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c6e"),
+    path: "config",
+    component: "system/config/index",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:config:list",
+    icon: "edit",
+    remark: "参数设置菜单",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("106"),
+    menuName: "参数设置",
+    menuType: "C",
+    orderNum: Int32("7"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c64"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c6f"),
+    path: "notice",
+    component: "system/notice/index",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:notice:list",
+    icon: "message",
+    remark: "通知公告菜单",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("107"),
+    menuName: "通知公告",
+    menuType: "C",
+    orderNum: Int32("8"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c64"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c70"),
+    path: "log",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "",
+    icon: "log",
+    remark: "日志管理菜单",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("108"),
+    menuName: "日志管理",
+    menuType: "M",
+    orderNum: Int32("9"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c64"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c71"),
+    path: "online",
+    component: "monitor/online/index",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:online:list",
+    icon: "online",
+    remark: "在线用户菜单",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("109"),
+    menuName: "在线用户",
+    menuType: "C",
+    orderNum: Int32("1"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c65"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c72"),
+    path: "job",
+    component: "monitor/job/index",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:job:list",
+    icon: "job",
+    remark: "定时任务菜单",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("110"),
+    menuName: "定时任务",
+    menuType: "C",
+    orderNum: Int32("2"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c65"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c73"),
+    path: "druid",
+    component: "monitor/druid/index",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:druid:list",
+    icon: "druid",
+    remark: "数据监控菜单",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("111"),
+    menuName: "数据监控",
+    menuType: "C",
+    orderNum: Int32("3"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c65"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c74"),
+    path: "server",
+    component: "monitor/server/index",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:server:list",
+    icon: "server",
+    remark: "服务监控菜单",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("112"),
+    menuName: "服务监控",
+    menuType: "C",
+    orderNum: Int32("4"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c65"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c75"),
+    path: "cache",
+    component: "monitor/cache/index",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:cache:list",
+    icon: "redis",
+    remark: "缓存监控菜单",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("113"),
+    menuName: "缓存监控",
+    menuType: "C",
+    orderNum: Int32("5"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c65"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c76"),
+    path: "cacheList",
+    component: "monitor/cache/list",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:cache:list",
+    icon: "redis-list",
+    remark: "缓存列表菜单",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("114"),
+    menuName: "缓存列表",
+    menuType: "C",
+    orderNum: Int32("6"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c65"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c77"),
+    path: "build",
+    component: "tool/build/index",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "tool:build:list",
+    icon: "build",
+    remark: "表单构建菜单",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("115"),
+    menuName: "表单构建",
+    menuType: "C",
+    orderNum: Int32("1"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c66"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c78"),
+    path: "gen",
+    component: "tool/gen/index",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "tool:gen:list",
+    icon: "code",
+    remark: "代码生成菜单",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("116"),
+    menuName: "代码生成",
+    menuType: "C",
+    orderNum: Int32("2"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c66"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c79"),
+    path: "swagger",
+    component: "tool/swagger/index",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "tool:swagger:list",
+    icon: "swagger",
+    remark: "系统接口菜单",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("117"),
+    menuName: "系统接口",
+    menuType: "C",
+    orderNum: Int32("3"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c66"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c7a"),
+    path: "operlog",
+    component: "monitor/operlog/index",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:operlog:list",
+    icon: "form",
+    remark: "操作日志菜单",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("500"),
+    menuName: "操作日志",
+    menuType: "C",
+    orderNum: Int32("1"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c70"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c7b"),
+    path: "logininfor",
+    component: "monitor/logininfor/index",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:logininfor:list",
+    icon: "logininfor",
+    remark: "登录日志菜单",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("501"),
+    menuName: "登录日志",
+    menuType: "C",
+    orderNum: Int32("2"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c70"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c7c"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:user:query",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1000"),
+    menuName: "用户查询",
+    menuType: "F",
+    orderNum: Int32("1"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c68"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c7d"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:user:add",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1001"),
+    menuName: "用户新增",
+    menuType: "F",
+    orderNum: Int32("2"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c68"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c7e"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:user:edit",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1002"),
+    menuName: "用户修改",
+    menuType: "F",
+    orderNum: Int32("3"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c68"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c7f"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:user:remove",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1003"),
+    menuName: "用户删除",
+    menuType: "F",
+    orderNum: Int32("4"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c68"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c80"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:user:export",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1004"),
+    menuName: "用户导出",
+    menuType: "F",
+    orderNum: Int32("5"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c68"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c81"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:user:import",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1005"),
+    menuName: "用户导入",
+    menuType: "F",
+    orderNum: Int32("6"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c68"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c82"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:user:resetPwd",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1006"),
+    menuName: "重置密码",
+    menuType: "F",
+    orderNum: Int32("7"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c68"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c83"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:role:query",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1007"),
+    menuName: "角色查询",
+    menuType: "F",
+    orderNum: Int32("1"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c69"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c84"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:role:add",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1008"),
+    menuName: "角色新增",
+    menuType: "F",
+    orderNum: Int32("2"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c69"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c85"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:role:edit",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1009"),
+    menuName: "角色修改",
+    menuType: "F",
+    orderNum: Int32("3"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c69"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c86"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:role:remove",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1010"),
+    menuName: "角色删除",
+    menuType: "F",
+    orderNum: Int32("4"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c69"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c87"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:role:export",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1011"),
+    menuName: "角色导出",
+    menuType: "F",
+    orderNum: Int32("5"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c69"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c88"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:menu:query",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1012"),
+    menuName: "菜单查询",
+    menuType: "F",
+    orderNum: Int32("1"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6a"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c89"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:menu:add",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1013"),
+    menuName: "菜单新增",
+    menuType: "F",
+    orderNum: Int32("2"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6a"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c8a"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:menu:edit",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1014"),
+    menuName: "菜单修改",
+    menuType: "F",
+    orderNum: Int32("3"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6a"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c8b"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:menu:remove",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1015"),
+    menuName: "菜单删除",
+    menuType: "F",
+    orderNum: Int32("4"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6a"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c8c"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:dept:query",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1016"),
+    menuName: "部门查询",
+    menuType: "F",
+    orderNum: Int32("1"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6b"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c8d"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:dept:add",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1017"),
+    menuName: "部门新增",
+    menuType: "F",
+    orderNum: Int32("2"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6b"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c8e"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:dept:edit",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1018"),
+    menuName: "部门修改",
+    menuType: "F",
+    orderNum: Int32("3"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6b"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c8f"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:dept:remove",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1019"),
+    menuName: "部门删除",
+    menuType: "F",
+    orderNum: Int32("4"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6b"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c90"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:post:query",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1020"),
+    menuName: "岗位查询",
+    menuType: "F",
+    orderNum: Int32("1"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6c"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c91"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:post:add",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1021"),
+    menuName: "岗位新增",
+    menuType: "F",
+    orderNum: Int32("2"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6c"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c92"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:post:edit",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1022"),
+    menuName: "岗位修改",
+    menuType: "F",
+    orderNum: Int32("3"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6c"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c93"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:post:remove",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1023"),
+    menuName: "岗位删除",
+    menuType: "F",
+    orderNum: Int32("4"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6c"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c94"),
+    path: "",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:post:export",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1024"),
+    menuName: "岗位导出",
+    menuType: "F",
+    orderNum: Int32("5"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6c"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c95"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:dict:query",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1025"),
+    menuName: "字典查询",
+    menuType: "F",
+    orderNum: Int32("1"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6d"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c96"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:dict:add",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1026"),
+    menuName: "字典新增",
+    menuType: "F",
+    orderNum: Int32("2"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6d"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c97"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:dict:edit",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1027"),
+    menuName: "字典修改",
+    menuType: "F",
+    orderNum: Int32("3"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6d"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c98"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:dict:remove",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1028"),
+    menuName: "字典删除",
+    menuType: "F",
+    orderNum: Int32("4"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6d"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c99"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:dict:export",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1029"),
+    menuName: "字典导出",
+    menuType: "F",
+    orderNum: Int32("5"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6d"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c9a"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:config:query",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1030"),
+    menuName: "参数查询",
+    menuType: "F",
+    orderNum: Int32("1"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6e"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c9b"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:config:add",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1031"),
+    menuName: "参数新增",
+    menuType: "F",
+    orderNum: Int32("2"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6e"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c9c"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:config:edit",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1032"),
+    menuName: "参数修改",
+    menuType: "F",
+    orderNum: Int32("3"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6e"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c9d"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:config:remove",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1033"),
+    menuName: "参数删除",
+    menuType: "F",
+    orderNum: Int32("4"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6e"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c9e"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:config:export",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1034"),
+    menuName: "参数导出",
+    menuType: "F",
+    orderNum: Int32("5"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6e"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003c9f"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:notice:query",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1035"),
+    menuName: "公告查询",
+    menuType: "F",
+    orderNum: Int32("1"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6f"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003ca0"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:notice:add",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1036"),
+    menuName: "公告新增",
+    menuType: "F",
+    orderNum: Int32("2"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6f"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003ca1"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:notice:edit",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1037"),
+    menuName: "公告修改",
+    menuType: "F",
+    orderNum: Int32("3"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6f"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003ca2"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "system:notice:remove",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1038"),
+    menuName: "公告删除",
+    menuType: "F",
+    orderNum: Int32("4"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c6f"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003ca3"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:operlog:query",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1039"),
+    menuName: "操作查询",
+    menuType: "F",
+    orderNum: Int32("1"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c7a"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003ca4"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:operlog:remove",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1040"),
+    menuName: "操作删除",
+    menuType: "F",
+    orderNum: Int32("2"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c7a"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003ca5"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:operlog:export",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1041"),
+    menuName: "日志导出",
+    menuType: "F",
+    orderNum: Int32("3"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c7a"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003ca6"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:logininfor:query",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1042"),
+    menuName: "登录查询",
+    menuType: "F",
+    orderNum: Int32("1"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c7b"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003ca7"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:logininfor:remove",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1043"),
+    menuName: "登录删除",
+    menuType: "F",
+    orderNum: Int32("2"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c7b"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003ca8"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:logininfor:export",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1044"),
+    menuName: "日志导出",
+    menuType: "F",
+    orderNum: Int32("3"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c7b"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003ca9"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:logininfor:unlock",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1045"),
+    menuName: "账户解锁",
+    menuType: "F",
+    orderNum: Int32("4"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c7b"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003caa"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:online:query",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1046"),
+    menuName: "在线查询",
+    menuType: "F",
+    orderNum: Int32("1"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c71"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cab"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:online:batchLogout",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1047"),
+    menuName: "批量强退",
+    menuType: "F",
+    orderNum: Int32("2"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c71"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cac"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:online:forceLogout",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1048"),
+    menuName: "单条强退",
+    menuType: "F",
+    orderNum: Int32("3"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c71"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cad"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:job:query",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1049"),
+    menuName: "任务查询",
+    menuType: "F",
+    orderNum: Int32("1"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c72"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cae"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:job:add",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1050"),
+    menuName: "任务新增",
+    menuType: "F",
+    orderNum: Int32("2"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c72"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003caf"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:job:edit",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1051"),
+    menuName: "任务修改",
+    menuType: "F",
+    orderNum: Int32("3"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c72"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cb0"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:job:remove",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1052"),
+    menuName: "任务删除",
+    menuType: "F",
+    orderNum: Int32("4"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c72"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cb1"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:job:changeStatus",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1053"),
+    menuName: "状态修改",
+    menuType: "F",
+    orderNum: Int32("5"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c72"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cb2"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "monitor:job:export",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1054"),
+    menuName: "任务导出",
+    menuType: "F",
+    orderNum: Int32("6"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c72"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cb3"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "tool:gen:query",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1055"),
+    menuName: "生成查询",
+    menuType: "F",
+    orderNum: Int32("1"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c78"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cb4"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "tool:gen:edit",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1056"),
+    menuName: "生成修改",
+    menuType: "F",
+    orderNum: Int32("2"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c78"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cb5"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "tool:gen:remove",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1057"),
+    menuName: "生成删除",
+    menuType: "F",
+    orderNum: Int32("3"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c78"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cb6"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "tool:gen:import",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1058"),
+    menuName: "导入代码",
+    menuType: "F",
+    orderNum: Int32("4"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c78"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cb7"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "tool:gen:preview",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1059"),
+    menuName: "预览代码",
+    menuType: "F",
+    orderNum: Int32("5"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c78"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_menu").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cb8"),
+    path: "#",
+    component: "",
+    query: "",
+    visible: "0",
+    status: "0",
+    perms: "tool:gen:code",
+    icon: "#",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    isCache: Int32("0"),
+    isFrame: Int32("1"),
+    menuId: Long("1060"),
+    menuName: "生成代码",
+    menuType: "F",
+    orderNum: Int32("6"),
+    parentId: ObjectId("6a51b939ba7fa0883e003c78"),
+    routeName: "",
+    updateBy: "",
+    updateTime: null
+} ]);
+
+// ----------------------------
+// Collection structure for sys_notice
+// ----------------------------
+db.getCollection("sys_notice").drop();
+db.createCollection("sys_notice");
+
+// ----------------------------
+// Documents of sys_notice
+// ----------------------------
+db.getCollection("sys_notice").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cb9"),
+    status: "0",
+    remark: "管理员",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:47.000Z"),
+    noticeContent: "内容",
+    noticeId: Int32("1"),
+    noticeTitle: "温馨提醒：2018-07-01 若依新版本发布啦",
+    noticeType: "2",
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_notice").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cba"),
+    status: "0",
+    remark: "管理员",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:47.000Z"),
+    noticeContent: "内容",
+    noticeId: Int32("2"),
+    noticeTitle: "维护通知：2018-07-01 若依系统凌晨维护",
+    noticeType: "1",
+    updateBy: "",
+    updateTime: null
+} ]);
+
+// ----------------------------
+// Collection structure for sys_oper_log
+// ----------------------------
+db.getCollection("sys_oper_log").drop();
+db.createCollection("sys_oper_log");
+db.getCollection("sys_oper_log").createIndex({
+    business_type: Int32("1")
+}, {
+    name: "idx_sys_oper_log_bt"
+});
+db.getCollection("sys_oper_log").createIndex({
+    status: Int32("1")
+}, {
+    name: "idx_sys_oper_log_s"
+});
+db.getCollection("sys_oper_log").createIndex({
+    oper_time: Int32("1")
+}, {
+    name: "idx_sys_oper_log_ot"
+});
+db.getCollection("sys_oper_log").createIndex({
+    businessType: Int32("1")
+}, {
+    name: "businessType_1",
+    background: true
+});
+db.getCollection("sys_oper_log").createIndex({
+    operTime: Int32("-1")
+}, {
+    name: "operTime_-1",
+    background: true
+});
+
+// ----------------------------
+// Documents of sys_oper_log
+// ----------------------------
+db.getCollection("sys_oper_log").insert([ {
+    _id: ObjectId("6a9a878b684e09b920b9beb8"),
+    title: "操作日志",
+    businessType: Int32("9"),
+    method: "/monitor/operlog/clean",
+    requestMethod: "DELETE",
+    operatorType: Int32("1"),
+    operName: "admin",
+    deptName: "",
+    operUrl: "/monitor/operlog/clean",
+    operIp: "::1",
+    operLocation: "",
+    operParam: "{}",
+    jsonResult: "{\"code\":200,\"msg\":\"清空成功\"}",
+    status: Int32("0"),
+    errorMsg: "",
+    operTime: ISODate("2026-09-04T08:55:39.51Z"),
+    costTime: Int32("33"),
+    __v: Int32("0")
+} ]);
+
+// ----------------------------
+// Collection structure for sys_post
+// ----------------------------
+db.getCollection("sys_post").drop();
+db.createCollection("sys_post");
+db.getCollection("sys_post").createIndex({
+    postCode: Int32("1")
+}, {
+    name: "postCode_1",
+    background: true
+});
+
+// ----------------------------
+// Documents of sys_post
+// ----------------------------
+db.getCollection("sys_post").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cbb"),
+    status: "0",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    postCode: "ceo",
+    postId: Long("1"),
+    postName: "董事长",
+    postSort: Int32("1"),
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_post").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cbc"),
+    status: "0",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    postCode: "se",
+    postId: Long("2"),
+    postName: "项目经理",
+    postSort: Int32("2"),
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_post").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cbd"),
+    status: "0",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    postCode: "hr",
+    postId: Long("3"),
+    postName: "人力资源",
+    postSort: Int32("3"),
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_post").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cbe"),
+    status: "0",
+    remark: "",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    postCode: "user",
+    postId: Long("4"),
+    postName: "普通员工",
+    postSort: Int32("4"),
+    updateBy: "",
+    updateTime: null
+} ]);
+
+// ----------------------------
+// Collection structure for sys_role
+// ----------------------------
+db.getCollection("sys_role").drop();
+db.createCollection("sys_role");
+db.getCollection("sys_role").createIndex({
+    roleKey: Int32("1")
+}, {
+    name: "roleKey_1",
+    background: true
+});
+db.getCollection("sys_role").createIndex({
+    delFlag: Int32("1"),
+    status: Int32("1")
+}, {
+    name: "delFlag_1_status_1",
+    background: true
+});
+
+// ----------------------------
+// Documents of sys_role
+// ----------------------------
+db.getCollection("sys_role").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cbf"),
+    status: "0",
+    remark: "超级管理员",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    dataScope: "1",
+    delFlag: "0",
+    deptCheckStrictly: Int32("1"),
+    menuCheckStrictly: Int32("1"),
+    roleId: Long("1"),
+    roleKey: "admin",
+    roleName: "超级管理员",
+    roleSort: Int32("1"),
+    updateBy: "",
+    updateTime: null
+} ]);
+db.getCollection("sys_role").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cc0"),
+    status: "0",
+    remark: "普通角色",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:41.000Z"),
+    dataScope: "2",
+    delFlag: "0",
+    deptCheckStrictly: true,
+    menuCheckStrictly: true,
+    roleId: Long("2"),
+    roleKey: "common",
+    roleName: "普通角色",
+    roleSort: Int32("2"),
+    updateBy: "admin",
+    updateTime: ISODate("2026-07-28T16:35:42.422Z")
+} ]);
+
+// ----------------------------
+// Collection structure for sys_role_dept
+// ----------------------------
+db.getCollection("sys_role_dept").drop();
+db.createCollection("sys_role_dept");
+db.getCollection("sys_role_dept").createIndex({
+    roleId: Int32("1")
+}, {
+    name: "roleId_1",
+    background: true
+});
+db.getCollection("sys_role_dept").createIndex({
+    deptId: Int32("1")
+}, {
+    name: "deptId_1",
+    background: true
+});
+db.getCollection("sys_role_dept").createIndex({
+    roleId: Int32("1"),
+    deptId: Int32("1")
+}, {
+    name: "roleId_1_deptId_1",
+    background: true,
+    unique: true
+});
+
+// ----------------------------
+// Documents of sys_role_dept
+// ----------------------------
+db.getCollection("sys_role_dept").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cc1"),
+    dept_id: Long("100"),
+    role_id: Long("2"),
+    deptId: ObjectId("6a51b938ba7fa0883e003c46"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0")
+} ]);
+db.getCollection("sys_role_dept").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cc2"),
+    dept_id: Long("101"),
+    role_id: Long("2"),
+    deptId: ObjectId("6a51b938ba7fa0883e003c47"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0")
+} ]);
+db.getCollection("sys_role_dept").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cc3"),
+    dept_id: Long("105"),
+    role_id: Long("2"),
+    deptId: ObjectId("6a51b938ba7fa0883e003c4b"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0")
+} ]);
+
+// ----------------------------
+// Collection structure for sys_role_menu
+// ----------------------------
+db.getCollection("sys_role_menu").drop();
+db.createCollection("sys_role_menu");
+db.getCollection("sys_role_menu").createIndex({
+    roleId: Int32("1")
+}, {
+    name: "roleId_1",
+    background: true
+});
+db.getCollection("sys_role_menu").createIndex({
+    menuId: Int32("1")
+}, {
+    name: "menuId_1",
+    background: true
+});
+db.getCollection("sys_role_menu").createIndex({
+    roleId: Int32("1"),
+    menuId: Int32("1")
+}, {
+    name: "roleId_1_menuId_1",
+    background: true,
+    unique: true
+});
+
+// ----------------------------
+// Documents of sys_role_menu
+// ----------------------------
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331613e"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c64"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331613f"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c68"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316140"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c7c"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316141"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c7d"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316142"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c7e"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316143"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c7f"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316144"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c80"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316145"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c81"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316146"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c82"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316147"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c69"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316148"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c83"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316149"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c84"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331614a"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c85"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331614b"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c86"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331614c"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c87"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331614d"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c6a"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331614e"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c88"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331614f"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c89"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316150"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c8a"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316151"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c8b"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316152"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c6b"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316153"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c8c"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316154"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c8d"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316155"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c8e"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316156"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c8f"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316157"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c6c"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316158"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c90"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316159"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c91"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331615a"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c92"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331615b"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c93"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331615c"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c94"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331615d"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c6d"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331615e"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c95"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331615f"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c96"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316160"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c97"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316161"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c98"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316162"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c99"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316163"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c6e"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316164"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c9a"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316165"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c9b"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316166"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c9c"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316167"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c9d"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316168"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c9e"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316169"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c6f"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331616a"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c9f"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331616b"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003ca0"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331616c"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003ca1"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331616d"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003ca2"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331616e"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c70"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331616f"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c7a"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316170"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003ca3"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316171"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003ca4"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316172"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003ca5"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316173"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c7b"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316174"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003ca6"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316175"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003ca7"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316176"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003ca8"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316177"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003ca9"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316178"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c65"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316179"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c71"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331617a"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003caa"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331617b"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003cab"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331617c"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003cac"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331617d"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c72"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331617e"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003cad"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331617f"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003cae"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316180"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003caf"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316181"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003cb0"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316182"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003cb1"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316183"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003cb2"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316184"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c73"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316185"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c74"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316186"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c75"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316187"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c76"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316188"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c66"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316189"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c77"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331618a"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c78"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331618b"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003cb3"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331618c"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003cb4"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331618d"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003cb5"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331618e"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003cb6"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae6397331618f"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003cb7"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316190"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003cb8"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316191"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c79"),
+    __v: Int32("0")
+} ]);
+db.getCollection("sys_role_menu").insert([ {
+    _id: ObjectId("6a68da5ee8bae63973316192"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    menuId: ObjectId("6a51b939ba7fa0883e003c67"),
+    __v: Int32("0")
+} ]);
+
+// ----------------------------
+// Collection structure for sys_user
+// ----------------------------
+db.getCollection("sys_user").drop();
+db.createCollection("sys_user");
+db.getCollection("sys_user").createIndex({
+    userName: Int32("1")
+}, {
+    name: "userName_1",
+    background: true,
+    unique: true
+});
+db.getCollection("sys_user").createIndex({
+    deptId: Int32("1")
+}, {
+    name: "deptId_1",
+    background: true
+});
+db.getCollection("sys_user").createIndex({
+    delFlag: Int32("1"),
+    status: Int32("1")
+}, {
+    name: "delFlag_1_status_1",
+    background: true
+});
+db.getCollection("sys_user").createIndex({
+    phonenumber: Int32("1")
+}, {
+    name: "phonenumber_1",
+    background: true
+});
+db.getCollection("sys_user").createIndex({
+    email: Int32("1")
+}, {
+    name: "email_1",
+    background: true
+});
+
+// ----------------------------
+// Documents of sys_user
+// ----------------------------
+db.getCollection("sys_user").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cc5"),
+    email: "ry@163.com",
+    phonenumber: "15888888888",
+    sex: "1",
+    avatar: "",
+    password: "$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2",
+    status: "0",
+    remark: "管理员",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:40.000Z"),
+    deptId: ObjectId("6a51b938ba7fa0883e003c49"),
+    loginDate: ISODate("2026-09-04T08:55:00.812Z"),
+    loginIp: "::1",
+    nickName: "若依",
+    pwdUpdateDate: ISODate("2026-07-06T22:52:40.000Z"),
+    updateBy: "",
+    updateTime: ISODate("2026-09-04T08:55:00.814Z"),
+    userName: "admin",
+    userType: "00",
+    delFlag: "0"
+} ]);
+db.getCollection("sys_user").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003cc6"),
+    email: "ry@qq.com",
+    phonenumber: "15666666666",
+    sex: "1",
+    avatar: "",
+    password: "$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2",
+    status: "0",
+    remark: "测试员",
+    createBy: "admin",
+    createTime: ISODate("2026-07-06T22:52:40.000Z"),
+    deptId: ObjectId("6a51b938ba7fa0883e003c4b"),
+    loginDate: ISODate("2026-07-06T22:52:40.000Z"),
+    loginIp: "127.0.0.1",
+    nickName: "若依",
+    pwdUpdateDate: ISODate("2026-07-06T22:52:40.000Z"),
+    updateBy: "admin",
+    updateTime: ISODate("2026-07-28T16:35:22.534Z"),
+    userName: "ry",
+    userType: "00",
+    delFlag: "0"
+} ]);
+
+// ----------------------------
+// Collection structure for sys_user_post
+// ----------------------------
+db.getCollection("sys_user_post").drop();
+db.createCollection("sys_user_post");
+db.getCollection("sys_user_post").createIndex({
+    userId: Int32("1")
+}, {
+    name: "userId_1",
+    background: true
+});
+db.getCollection("sys_user_post").createIndex({
+    postId: Int32("1")
+}, {
+    name: "postId_1",
+    background: true
+});
+db.getCollection("sys_user_post").createIndex({
+    userId: Int32("1"),
+    postId: Int32("1")
+}, {
+    name: "userId_1_postId_1",
+    background: true,
+    unique: true
+});
+
+// ----------------------------
+// Documents of sys_user_post
+// ----------------------------
+db.getCollection("sys_user_post").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003d1e"),
+    post_id: Long("1"),
+    user_id: Long("1"),
+    userId: ObjectId("6a51b939ba7fa0883e003cc5"),
+    postId: ObjectId("6a51b939ba7fa0883e003cbb")
+} ]);
+db.getCollection("sys_user_post").insert([ {
+    _id: ObjectId("6a68da4ae8bae63973316122"),
+    userId: ObjectId("6a51b939ba7fa0883e003cc6"),
+    postId: ObjectId("6a51b939ba7fa0883e003cbc"),
+    __v: Int32("0")
+} ]);
+
+// ----------------------------
+// Collection structure for sys_user_role
+// ----------------------------
+db.getCollection("sys_user_role").drop();
+db.createCollection("sys_user_role");
+db.getCollection("sys_user_role").createIndex({
+    userId: Int32("1")
+}, {
+    name: "userId_1",
+    background: true
+});
+db.getCollection("sys_user_role").createIndex({
+    roleId: Int32("1")
+}, {
+    name: "roleId_1",
+    background: true
+});
+db.getCollection("sys_user_role").createIndex({
+    userId: Int32("1"),
+    roleId: Int32("1")
+}, {
+    name: "userId_1_roleId_1",
+    background: true,
+    unique: true
+});
+
+// ----------------------------
+// Documents of sys_user_role
+// ----------------------------
+db.getCollection("sys_user_role").insert([ {
+    _id: ObjectId("6a51b939ba7fa0883e003d1c"),
+    role_id: Long("1"),
+    user_id: Long("1"),
+    userId: ObjectId("6a51b939ba7fa0883e003cc5"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cbf")
+} ]);
+db.getCollection("sys_user_role").insert([ {
+    _id: ObjectId("6a68da4ae8bae6397331611f"),
+    userId: ObjectId("6a51b939ba7fa0883e003cc6"),
+    roleId: ObjectId("6a51b939ba7fa0883e003cc0"),
+    __v: Int32("0")
+} ]);
