@@ -155,17 +155,17 @@ module.exports = (appInfo) => {
     },
   };
 
-  // 数据库映射配置
-  config.database = {
-    master: {
-      driver: "mysql", // 数据库驱动：mysql, pgsql, sqlite
-      instance: "ruoyi", // 主库实例名称（写操作）
+  // MongoDB 配置
+  config.mongoose = {
+    client: {
+      url: 'mongodb://admin:admin@127.0.0.1:27017/ruoyi?authSource=admin',
+      options: {
+        maxPoolSize: 10,
+        minPoolSize: 2,
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+      },
     },
-    slave: {
-      driver: "mysql", // 数据库驱动：mysql, pgsql, sqlite
-      instance: "ruoyi", // 从库实例名称（读操作），默认同主库
-    },
-    readWriteSplit: false, // 是否启用读写分离
   };
 
   // 日志轮转配置（防止日志文件过大）

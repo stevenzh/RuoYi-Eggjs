@@ -60,7 +60,7 @@ module.exports = app => {
         const { operIds } = ctx.params;
         
         // 解析日志ID数组
-        const operIdArray = operIds.split(',').map(id => parseInt(id));
+        const operIdArray = operIds.split(',').filter(Boolean);
         
         // 删除操作日志
         const rows = await service.monitor.operlog.deleteOperLogByIds(operIdArray);

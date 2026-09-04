@@ -61,7 +61,7 @@ module.exports = app => {
         const depts = await service.system.dept.selectDeptList({});
         
         // 排除指定节点及其子节点
-        const excludeDeptId = parseInt(deptId);
+        const excludeDeptId = deptId;
         const filteredDepts = depts.filter(d => {
           // 排除自己
           if (d.deptId === excludeDeptId) {
@@ -70,7 +70,7 @@ module.exports = app => {
           
           // 排除子节点（ancestors 中包含该 deptId）
           if (d.ancestors) {
-            const ancestorIds = d.ancestors.split(',').map(id => parseInt(id));
+            const ancestorIds = d.ancestors.split(',').filter(Boolean);
             if (ancestorIds.includes(excludeDeptId)) {
               return false;
             }
@@ -107,10 +107,10 @@ module.exports = app => {
         const { deptId } = ctx.params;
         
         // 校验数据权限
-        await service.system.dept.checkDeptDataScope(parseInt(deptId));
+        await service.system.dept.checkDeptDataScope(deptId);
         
         // 查询部门信息
-        const dept = await service.system.dept.selectDeptById(parseInt(deptId));
+        const dept = await service.system.dept.selectDeptById(deptId);
         
         if (!dept) {
           ctx.body = {
@@ -251,7 +251,7 @@ module.exports = app => {
       
       try {
         const { deptId } = ctx.params;
-        const parsedDeptId = parseInt(deptId);
+        const parsedDeptId = deptId;
         
         // 检查是否存在子部门
         const hasChild = await service.system.dept.hasChildByDeptId(parsedDeptId);
@@ -339,7 +339,7 @@ module.exports = app => {
         const { roleId } = ctx.params;
         
         // 查询角色已分配的部门ID列表
-        const checkedKeys = await service.system.dept.selectDeptListByRoleId(parseInt(roleId));
+        const checkedKeys = await service.system.dept.selectDeptListByRoleId(roleId);
         
         // 查询所有部门树
         const depts = await service.system.dept.selectDeptList({});

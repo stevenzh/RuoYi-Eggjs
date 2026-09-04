@@ -58,7 +58,7 @@ module.exports = app => {
         const { noticeId } = ctx.params;
         
         // 查询通知公告信息
-        const notice = await service.system.notice.selectNoticeById(parseInt(noticeId));
+        const notice = await service.system.notice.selectNoticeById(noticeId);
         
         if (!notice) {
           ctx.body = {
@@ -157,7 +157,7 @@ module.exports = app => {
         const { noticeIds } = ctx.params;
         
         // 解析通知公告ID数组
-        const noticeIdArray = noticeIds.split(',').map(id => parseInt(id));
+        const noticeIdArray = noticeIds.split(',').filter(Boolean);
         
         // 删除通知公告
         const rows = await service.system.notice.deleteNoticeByIds(noticeIdArray);

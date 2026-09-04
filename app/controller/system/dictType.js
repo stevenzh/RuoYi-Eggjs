@@ -59,7 +59,7 @@ module.exports = app => {
         const { dictId } = ctx.params;
         
         // 查询字典类型信息
-        const dictType = await service.system.dictType.selectDictTypeById(parseInt(dictId));
+        const dictType = await service.system.dictType.selectDictTypeById(dictId);
         
         if (!dictType) {
           ctx.body = {
@@ -178,7 +178,7 @@ module.exports = app => {
         const { dictIds } = ctx.params;
         
         // 解析字典ID数组
-        const dictIdArray = dictIds.split(',').map(id => parseInt(id));
+        const dictIdArray = dictIds.split(',').filter(Boolean);
         
         // 删除字典类型
         const rows = await service.system.dictType.deleteDictTypeByIds(dictIdArray);

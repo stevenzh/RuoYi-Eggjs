@@ -96,90 +96,86 @@ module.exports = {
 
   /**
    * 判断是否为管理员
-   * @param {number} userId - 用户ID
+   * @param {object|string} user - 用户对象或用户名字符串
    * @return {boolean}
    */
-  isAdmin(userId) {
-    return userId === 1;
+  isAdmin(user) {
+    if (!user) return false;
+    // 支持传入用户对象或用户名字符串
+    const userName = typeof user === 'string' ? user : (user.userName || '');
+    return userName === 'admin';
   },
 
   /**
-   * 获取数据库访问对象（基于配置，自动读写分离）
-   * @param {import('egg').Context} ctx - 上下文对象
-   * @param {boolean} [forWrite=false] - 是否用于写操作，默认 false（读操作）
-   * @returns {import('egg').IService['db']['mysql']['ruoyi']} 数据库访问对象（包含所有 Mapper）
-   * @example
-   * // 读操作（从库）- 支持 IDE 自动跳转
-   * const db = ctx.helper.getDB(ctx);
-   * const users = await db.sysUserMapper.selectUserList([0, 10], {});
-   * 
-   * // 写操作（主库）- 支持 IDE 自动跳转
-   * const db = ctx.helper.getDB(ctx, true);
-   * await db.sysUserMapper.insertUser([userData]);
+   * MongoDB 分页查询封装
+   * @param {import('mongoose').Model} model - Mongoose Model
+   * @param {object} filter - MongoDB 查询条件
+   * @param {object} params - 请求参数（含 pageNum, pageSize）
+   * @param {object} [options] - 额外选项
+   * @param {object} [options.sort] - 排序条件
+   * @param {string|object} [options.select] - 字段筛选
+   * @param {object} [options.populate] - populate 配置
+   * @param {string} [options.idField] - ID 字段名（如 'userId', 'roleId'），自动从 _id 映射
+   * @return {object} { rows, total }
    */
-  getDB(ctx, forWrite = false) {
-    const { master, slave, readWriteSplit } = ctx.app.config.database;
-    
-    // 如果启用读写分离，根据操作类型选择主从库
-    if (readWriteSplit && !forWrite) {
-      // 读操作使用从库
-      const { driver, instance } = slave;
-      return /** @type {import('egg').IService['db']['mysql']['ruoyi']} */ (ctx.service.db[driver][instance]);
-    }
-    
-    // 写操作或未启用读写分离，使用主库
-    const { driver, instance } = master;
-    return /** @type {import('egg').IService['db']['mysql']['ruoyi']} */ (ctx.service.db[driver][instance]);
-  },
-
-  /**
-   * 获取主库数据库访问对象（写操作）
-   * @param {import('egg').Context} ctx - 上下文对象
-   * @returns {import('egg').IService['db']['mysql']['ruoyi']} 主库数据库访问对象
-   * @example
-   * // 支持 IDE 自动跳转到 Mapper 方法
-   * const db = ctx.helper.getMasterDB(ctx);
-   * await db.sysUserMapper.updateUser([userData]);
-   */
-  getMasterDB(ctx) {
-    return this.getDB(ctx, true);
-  },
-
-  /**
-   * 获取从库数据库访问对象（读操作）
-   * @param {import('egg').Context} ctx - 上下文对象
-   * @returns {import('egg').IService['db']['mysql']['ruoyi']} 从库数据库访问对象
-   * @example
-   * // 支持 IDE 自动跳转到 Mapper 方法
-   * const db = ctx.helper.getSlaveDB(ctx);
-   * const list = await db.sysRoleMapper.selectRoleList([0, 10], {});
-   */
-  getSlaveDB(ctx) {
-    return this.getDB(ctx, false);
-  },
-
-  /**
-   * 分页查询封装
-   * @param {string} sql - SQL 语句
-   * @param {object} params - 查询参数
-   * @param {object} db - 数据库连接
-   * @return {object} { code, msg, rows, total }
-   */
-  async pageQuery(sql, params, db) {
-    // 分页参数
+  async pageQueryMongo(model, filter = {}, params = {}, options = {}) {
     const pageNum = parseInt(params.pageNum) || 1;
     const pageSize = parseInt(params.pageSize) || 10;
-    const offset = (pageNum - 1) * pageSize;
+    const skip = (pageNum - 1) * pageSize;
 
-    // 并行执行 count 和 list 查询
-    const [countResult, rows] = await Promise.all([
-      db.select("select count(*) as count from (" + sql + ") as t"),
-      db.selects(sql + " limit " + offset + "," + pageSize),
+    let query = model.find(filter);
+    if (options.select) query = query.select(options.select);
+    if (options.sort) query = query.sort(options.sort);
+    if (options.populate) query = query.populate(options.populate);
+    query = query.skip(skip).limit(pageSize).lean();
+
+    const [rows, total] = await Promise.all([
+      query,
+      model.countDocuments(filter),
     ]);
 
-    return {
-      rows: rows || [],
-      total: countResult ? countResult.count : 0,
-    };
+    // 如果指定了 idField，自动将 _id 映射到该字段
+    if (options.idField && rows) {
+      for (const row of rows) {
+        if (row._id != null) row[options.idField] = row._id;
+      }
+    }
+
+    return { rows: rows || [], total };
   },
+
+  /**
+   * 将 Mongoose 文档列表的 _id 映射到指定的 ID 字段（用于非分页查询）
+   * @param {array} docs - Mongoose 文档数组
+   * @param {string} idField - ID 字段名（如 'userId', 'roleId'）
+   * @return {array} 映射后的文档数组
+   */
+  normalizeIds(docs, idField) {
+    if (!docs || !Array.isArray(docs) || !idField) return docs;
+    return docs.map(doc => {
+      if (doc && doc._id != null) {
+        return { ...doc, [idField]: doc._id };
+      }
+      return doc;
+    });
+  },
+
+  // ===================== Coupon Business Helpers =====================
+
+  /**
+   * Generate JWT token for coupon (mini-program) users
+   * Uses separate appJwt config (not admin JWT)
+   */
+  generateToken(userId) {
+    const { secret, expire } = this.config.appJwt;
+    return this.app.jwt.sign({ id: userId }, secret, { expiresIn: expire });
+  },
+
+  /**
+   * Verify JWT token for coupon (mini-program) users
+   */
+  verifyToken(token) {
+    return this.app.jwt.verify(token, this.config.appJwt.secret);
+  },
+
 };

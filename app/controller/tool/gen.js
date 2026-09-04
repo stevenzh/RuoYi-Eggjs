@@ -87,7 +87,7 @@ module.exports = app => {
         const { tableId } = ctx.params;
         
         // 查询表信息（已包含列信息）
-        const table = await service.tool.gen.selectGenTableById(parseInt(tableId));
+        const table = await service.tool.gen.selectGenTableById(tableId);
         
         // 查询所有表信息（用于主子表选择）
         const tables = await service.tool.gen.selectGenTableAll();
@@ -124,7 +124,7 @@ module.exports = app => {
         const { tableId } = ctx.params;
         
         // 查询表字段
-        const columns = await service.tool.gen.selectGenTableColumnListByTableId(parseInt(tableId));
+        const columns = await service.tool.gen.selectGenTableColumnListByTableId(tableId);
         
         ctx.body = {
           code: 200,
@@ -257,7 +257,7 @@ module.exports = app => {
         const { tableIds } = ctx.params;
         
         // 解析表ID数组
-        const tableIdArray = tableIds.split(',').map(id => parseInt(id));
+        const tableIdArray = tableIds.split(',').filter(Boolean);
         
         // 删除代码生成表配置
         const rows = await service.tool.gen.deleteGenTableByIds(tableIdArray);
@@ -291,7 +291,7 @@ module.exports = app => {
         const { tableId } = ctx.params;
         
         // 预览代码
-        const codePreview = await service.tool.gen.previewCode(parseInt(tableId));
+        const codePreview = await service.tool.gen.previewCode(tableId);
         
         ctx.body = {
           code: 200,

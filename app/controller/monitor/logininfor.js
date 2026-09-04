@@ -59,7 +59,7 @@ module.exports = app => {
         const { infoIds } = ctx.params;
         
         // 解析日志ID数组
-        const infoIdArray = infoIds.split(',').map(id => parseInt(id));
+        const infoIdArray = infoIds.split(',').filter(Boolean);
         
         // 删除登录日志
         const rows = await service.monitor.logininfor.deleteLogininforByIds(infoIdArray);

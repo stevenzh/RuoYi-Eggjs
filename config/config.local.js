@@ -8,6 +8,8 @@
  */
 /* eslint valid-jsdoc: "off" */
 
+require('dotenv').config();
+
 /**
  * @param {Egg.EggAppInfo} appInfo app info
  */
@@ -18,15 +20,16 @@ module.exports = (appInfo) => {
    **/
   const config = (exports = {});
 
-  config.mysql = {
-    // 启用驼峰命名转换：数据库字段 user_name -> userName
-    camelCase: true,
-    clients: {
-      ruoyi: {
-        host: "127.0.0.1",
-        user: "root",
-        password: "jyx123",
-        database: "ruoyi",
+  config.mongoose = {
+    client: {
+      url: 'mongodb://admin:admin@127.0.0.1:27017/ruoyi?authSource=admin',
+      options: {
+        maxPoolSize: 10,
+        minPoolSize: 2,
+        serverSelectionTimeoutMS: 15000,
+        socketTimeoutMS: 45000,
+        useUnifiedTopology: true,
+        useNewUrlParser: true,
       },
     },
   };
@@ -35,7 +38,9 @@ module.exports = (appInfo) => {
     port: 6379,
     host: "127.0.0.1",
     password: "",
-    db: 6,
+    db: 1,
+    socketKeepAlive: true, 
+    keepAlive: 10000, 
   };
 
   config.cache = { redis };

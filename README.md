@@ -2,10 +2,6 @@
 
 > 若依（RuoYi）Node.js 版本，基于 Egg.js 企业级框架
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Node](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen.svg)](https://nodejs.org)
-[![Egg](https://img.shields.io/badge/egg-%5E3-blue.svg)](https://eggjs.org)
-
 ## 📑 目录导航
 
 - [平台简介](#平台简介)
@@ -15,7 +11,6 @@
 - [项目结构](#-项目结构)
 - [快速开始](#-快速开始)
 - [部署说明](#-部署说明)
-- [请我喝杯咖啡](#请我喝杯咖啡)
 - [参与贡献](#-参与贡献)
 - [开源协议](#-开源协议)
 - [鸣谢](#-鸣谢)
@@ -24,11 +19,8 @@
 
 ## 平台简介
 
-基于 Egg.js 框架开发的企业级后台管理系统，100% 实现若依（RuoYi-Vue）系统功能。采用 MyBatis XML 风格编写 SQL，完全复用若依原有的数据库结构和 MyBatis XML 映射文件。
+基于 Egg.js 框架开发的企业级后台管理系统，100% 实现若依（RuoYi-Vue）系统功能。完全复用若依原有的数据库结构。
 
-| 公众号                                       | 微信交流群                                                      | QQ群                                          |
-| -------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------- |
-| ![公众号](https://cdn.undsky.com/img/gh.jpg) | ![微信交流群](https://cdn.undsky.com/img/doudouqun.jpg?v=2.3.0) | ![QQ群](https://cdn.undsky.com/img/qqqun.jpg) |
 
 ## 演示项目
 
@@ -57,8 +49,6 @@ const baseUrl = "http://localhost:7001"; // 后端接口
 
 ### 核心特性
 
-- 🗄️ **MyBatis XML 编写 SQL** - 业务逻辑与 SQL 分离，支持动态 SQL（[文档](https://github.com/undsky/ruoyi-eggjs-mybatis)）
-- 🔌 **多数据库支持** - 支持 MySQL、PostgreSQL、SQLite 等多种数据库，支持多数据源配置（[MySQL](https://github.com/undsky/ruoyi-eggjs-mysql) | [PostgreSQL](https://github.com/undsky/ruoyi-eggjs-pgsql) | [SQLite](https://github.com/undsky/ruoyi-eggjs-sqlite)）
 - 🤖 **代码自动生成** - 基于 XML Mapper 自动生成 Service 层代码（[文档](https://github.com/undsky/ruoyi-eggjs-cli)）
 - 🌐 **内网穿透** - 内置 FRP 客户端，快速将本地服务暴露到公网（[文档](https://github.com/undsky/ruoyi-eggjs-cli#frp-内网穿透)）
 - 🎯 **路由注解** - 使用装饰器定义路由，简洁优雅（[文档](https://github.com/fyl080801/egg-decorator-router)）
@@ -80,10 +70,6 @@ const baseUrl = "http://localhost:7001"; // 后端接口
 
 | 插件                                                                         | 说明                       | 文档                                                        |
 | ---------------------------------------------------------------------------- | -------------------------- | ----------------------------------------------------------- |
-| [ruoyi-eggjs-mybatis](https://github.com/undsky/ruoyi-eggjs-mybatis)         | MyBatis XML SQL 映射       | [README](https://github.com/undsky/ruoyi-eggjs-mybatis)     |
-| [ruoyi-eggjs-mysql](https://github.com/undsky/ruoyi-eggjs-mysql)             | MySQL 数据库操作           | [README](https://github.com/undsky/ruoyi-eggjs-mysql)       |
-| [ruoyi-eggjs-pgsql](https://github.com/undsky/ruoyi-eggjs-pgsql)             | PostgreSQL 数据库操作      | [README](https://github.com/undsky/ruoyi-eggjs-pgsql)       |
-| [ruoyi-eggjs-sqlite](https://github.com/undsky/ruoyi-eggjs-sqlite)           | SQLite 数据库操作          | [README](https://github.com/undsky/ruoyi-eggjs-sqlite)      |
 | [ruoyi-eggjs-cache](https://github.com/undsky/ruoyi-eggjs-cache)             | 多层级缓存                 | [README](https://github.com/undsky/ruoyi-eggjs-cache)       |
 | [ruoyi-eggjs-ratelimiter](https://github.com/undsky/ruoyi-eggjs-ratelimiter) | API 限流                   | [README](https://github.com/undsky/ruoyi-eggjs-ratelimiter) |
 | [ruoyi-eggjs-cli](https://github.com/undsky/ruoyi-eggjs-cli)                 | 代码生成工具、FRP 内网穿透 | [README](https://github.com/undsky/ruoyi-eggjs-cli)         |
@@ -119,9 +105,6 @@ ruoyi-eggjs/
 │   │   ├── common.js       # 公共接口（上传/下载）
 │   │   └── index.js        # 首页控制器
 │   ├── service/            # 服务层
-│   │   ├── db/            # 数据库服务（自动生成）
-│   │   │   └── mysql/
-│   │   │       └── ruoyi/ # 若依系统表服务
 │   │   ├── system/        # 系统模块服务
 │   │   ├── monitor/       # 监控模块服务
 │   │   ├── tool/          # 工具模块服务
@@ -146,14 +129,6 @@ ruoyi-eggjs/
 │   ├── config.local.js    # 本地开发配置
 │   ├── config.prod.js     # 生产环境配置
 │   └── plugin.js          # 插件配置
-├── mapper/                # MyBatis XML 映射文件
-│   └── mysql/
-│       └── ruoyi/        # 若依系统表 Mapper
-│           ├── SysUserMapper.xml
-│           ├── SysRoleMapper.xml
-│           ├── SysMenuMapper.xml
-│           └── ...
-├── sql/                   # SQL 脚本文件
 ├── docs/                  # 文档目录
 ├── typings/               # TypeScript 类型定义
 ├── cache/                 # 文件缓存目录
@@ -169,7 +144,7 @@ ruoyi-eggjs/
 ### 环境要求
 
 - Node.js >= 20.0.0
-- 数据库（三选一）：MySQL >= 5.7 / PostgreSQL >= 10 / SQLite >= 3
+- 数据库：MongoDB >= 4.2.8
 - Redis >= 5.0
 
 ### 1. 克隆项目
@@ -187,13 +162,11 @@ npm install
 
 ### 3. 导入数据库
 
-项目支持 MySQL、PostgreSQL、SQLite 三种数据库，SQL 脚本位于 `sql/` 目录下：
+项目支持 MySQL 数据库，SQL 脚本位于 `sql/` 目录下：
 
 ```
 sql/
-├── mysql/     # MySQL 初始化脚本
-├── pgsql/     # PostgreSQL 初始化脚本
-└── sqlite/    # SQLite 初始化脚本
+└── mysql/     # MySQL 初始化脚本
 ```
 
 #### MySQL
@@ -204,25 +177,6 @@ CREATE DATABASE IF NOT EXISTS ruoyi DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_gene
 
 -- 导入数据表和数据
 mysql -u root -p ruoyi < sql/mysql/ry_20250522.sql
-```
-
-#### PostgreSQL
-
-```sql
--- 创建数据库
-CREATE DATABASE ruoyi;
-\c ruoyi
-
--- 导入数据表和数据
-psql -U ruoyi -d ruoyi -f sql/pgsql/ry_20250522.sql
-```
-
-#### SQLite
-
-SQLite 无需创建数据库，直接导入脚本即可：
-
-```bash
-sqlite3 ruoyi.db < sql/sqlite/ry_20250522.sql
 ```
 
 ### 4. 配置数据库和 Redis
@@ -240,35 +194,6 @@ config.mysql = {
       user: "root",
       password: "your_password",
       database: "ruoyi",
-    },
-  },
-};
-```
-
-#### PostgreSQL 配置
-
-```javascript
-config.pgsql = {
-  camelCase: true,
-  clients: {
-    ruoyi: {
-      host: "127.0.0.1",
-      user: "ruoyi",
-      password: "your_password",
-      database: "ruoyi",
-    },
-  },
-};
-```
-
-#### SQLite 配置
-
-```javascript
-config.sqlite = {
-  camelCase: true,
-  clients: {
-    ruoyi: {
-      database: "./ruoyi.db", // 数据库文件路径
     },
   },
 };
@@ -383,11 +308,6 @@ server {
 }
 ```
 
-## 请我喝杯咖啡
-
-如果项目对你有帮助，可以请我喝杯咖啡 ☕️
-
-<img src="https://cdn.undsky.com/img/weixin10.jpg" max-width="300" height="500" /> <img src="https://cdn.undsky.com/img/zhifubao10.jpg" max-width="300" height="500" />
 
 ## 🤝 参与贡献
 
@@ -415,6 +335,3 @@ server {
 - GitHub：[https://github.com/undsky/ruoyi-eggjs](https://github.com/undsky/ruoyi-eggjs)
 - Issues：[https://github.com/undsky/ruoyi-eggjs/issues](https://github.com/undsky/ruoyi-eggjs/issues)
 
-## 友情链接
-
-- [LINUX DO - 新的理想型社区](https://linux.do/)

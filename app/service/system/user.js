@@ -1,5 +1,5 @@
 /*
- * @Description: 用户服务�?
+ * @Description: 用户服务层（MongoDB/Mongoose 版本）
  * @Author: AI Assistant
  * @Date: 2025-10-23
  */
@@ -8,444 +8,417 @@ const Service = require("egg").Service;
 const { DataScope } = require("../../decorator/dataScope");
 
 class UserService extends Service {
+  /** 获取模型快捷访问 */
+  get model() {
+    return this.ctx.model;
+  }
+
+  // ==================== 数据规范化 ====================
+
+  /**
+   * 将 Mongoose 文档的 _id 映射为 userId，保持与前端兼容
+   */
+  _normalizeUser(user) {
+    if (!user) return user;
+    const normalized = { ...user, userId: user._id };
+    if (user.deptId && typeof user.deptId === 'object' && user.deptId._id) {
+      normalized.dept = user.deptId;
+    }
+    return normalized;
+  }
+
+  _normalizeUserList(users) {
+    if (!users || !Array.isArray(users)) return users;
+    return users.map(u => this._normalizeUser(u));
+  }
+
+  // ==================== 查询辅助 ====================
+
+  /**
+   * 构建用户查询条件（对应原 _buildSelectUserListSql）
+   */
+  _buildUserFilter(params) {
+    const filter = { delFlag: '0' };
+
+    if (params.userId) {
+      filter._id = typeof params.userId === 'string'
+        ? new this.app.mongoose.Types.ObjectId(params.userId)
+        : params.userId;
+    }
+    if (params.userName) {
+      filter.userName = { $regex: params.userName, $options: 'i' };
+    }
+    if (params.status != null && params.status !== '') {
+      filter.status = params.status;
+    }
+    if (params.phonenumber) {
+      filter.phonenumber = { $regex: params.phonenumber, $options: 'i' };
+    }
+
+    // 时间范围
+    const beginTime = (params.params && params.params.beginTime) || params.beginTime;
+    const endTime = (params.params && params.params.endTime) || params.endTime;
+    if (beginTime) {
+      filter.createTime = filter.createTime || {};
+      filter.createTime.$gte = new Date(beginTime);
+    }
+    if (endTime) {
+      filter.createTime = filter.createTime || {};
+      filter.createTime.$lte = new Date(endTime);
+    }
+
+    // 部门筛选
+    if (params.deptId) {
+      // 查询该部门及其所有子部门
+      filter.$or = [
+        { deptId: params.deptId },
+      ];
+    }
+
+    // 数据范围条件（由 @DataScope 装饰器注入）
+    if (params.params && params.params.mongoScope) {
+      // mongoScope 需要与现有条件 $and 合并
+      filter._mongoScope = params.params.mongoScope;
+    }
+
+    return filter;
+  }
+
+  // ==================== 分页查询 ====================
+
   /**
    * 查询用户列表（分页，带数据权限过滤）
-   * @param {object} params - 查询参数
-   * @return {object} 分页结果（包含部门信息）
    */
   @DataScope({ deptAlias: "d", userAlias: "u" })
   async selectUserPage(params = {}) {
-    const { ctx } = this;
-    const mapper = ctx.helper.getDB(ctx).sysUserMapper;
+    const filter = this._buildUserFilter(params);
 
-    const result = await ctx.helper.pageQuery(
-      mapper.selectUserListMapper([], params),
-      params,
-      mapper.db()
-    );
-
-    // 为每个用户添加部门信息
-    if (result.rows && result.rows.length > 0) {
-      for (const user of result.rows) {
-        if (user.deptId) {
-          user.dept = await this.selectDeptByDeptId(user.deptId);
-        }
+    // 部门子查询：如果指定了 deptId，查其所有子部门ID并加入 $in
+    if (params.deptId) {
+      const deptIds = await this._getDeptAndChildrenIds(params.deptId);
+      if (deptIds.length > 0) {
+        filter.deptId = { $in: deptIds };
       }
     }
+
+    // 处理 mongoScope
+    const mongoScope = filter._mongoScope;
+    delete filter._mongoScope;
+
+    // 合并 mongoScope
+    const queryFilter = mongoScope
+      ? { $and: [filter, mongoScope] }
+      : filter;
+
+    const result = await this.ctx.helper.pageQueryMongo(
+      this.model.SysUser,
+      queryFilter,
+      params,
+      { populate: 'deptId', sort: { createTime: -1 }, idField: 'userId' }
+    );
 
     return result;
   }
 
-  
+  // ==================== 查询列表 ====================
 
   /**
    * 查询用户列表（带数据权限过滤）
-   * @param {object} params - 查询参数
-   * @return {array} 用户列表
    */
   @DataScope({ deptAlias: "d", userAlias: "u" })
   async selectUserList(params = {}) {
-    const { ctx } = this;
+    const filter = this._buildUserFilter(params);
+    const mongoScope = filter._mongoScope;
+    delete filter._mongoScope;
 
-    // 查询条件
-    const conditions = {
-      userId: params.userId,
-      userName: params.userName,
-      phonenumber: params.phonenumber,
-      status: params.status,
-      deptId: params.deptId,
-      // params: {
-      //   beginTime: params.beginTime,
-      //   endTime: params.endTime,
-      //   dataScope: "", // 由 @DataScope 装饰器自动填充
-      // },
-    };
+    const queryFilter = mongoScope
+      ? { $and: [filter, mongoScope] }
+      : filter;
 
-    // 查询列表
-    const users = await ctx.helper
-      .getDB(ctx)
-      .sysUserMapper.selectUserList([], conditions);
-    
-    // 为每个用户添加部门信息
-    if (users && users.length > 0) {
-      for (const user of users) {
-        if (user.deptId) {
-          user.dept = await this.selectDeptByDeptId(user.deptId);
-        }
-      }
-    }
+    const users = await this.model.SysUser
+      .find(queryFilter)
+      .populate('deptId')
+      .lean();
 
-    return users || [];
+    return this._normalizeUserList(users);
   }
 
   /**
    * 根据用户ID查询用户（包含部门和角色信息）
-   * @param {number} userId - 用户ID
-   * @return {object} 用户信息（包含 dept、roles 和 roleIds）
    */
   async selectUserById(userId) {
-    const { ctx } = this;
+    const _id = typeof userId === 'string'
+      ? new this.app.mongoose.Types.ObjectId(userId)
+      : userId;
 
-    const users = await ctx.helper.getDB(ctx).sysUserMapper.selectUserById([], {
-      userId,
-    });
+    const user = await this.model.SysUser
+      .findById(_id)
+     // .populate('deptId')
+      .lean();
 
-    let user = Array.isArray(users) ? users[0] : users;
-    
-   user = await this.selectUserWithDeptAndRoles(user);
-    
-    return user;
+    if (!user) return null;
+
+    return this._normalizeUser(await this.selectUserWithDeptAndRoles(user));
   }
 
   /**
    * 根据用户名查询角色列表
-   * @param {string} userName - 用户名
-   * @return {object} { roles: 角色列表, roleIds: 角色ID列表 }
    */
   async selectRolesByUserName(userName) {
-    const { ctx } = this;
-    
     if (!userName) {
       return { roles: [], roleIds: [] };
     }
-    
-    const roles = await ctx.helper.getDB(ctx).sysRoleMapper.selectRolesByUserName([], {
-      userName
-    }) || [];
-    
-    // 提取角色ID列表
-    const roleIds = roles.map(role => role.roleId);
-    
-    return { roles, roleIds };
+
+    const user = await this.model.SysUser.findOne({ userName, delFlag: '0' }).lean();
+    if (!user) return { roles: [], roleIds: [] };
+
+    const userRoles = await this.model.SysUserRole.find({ userId: user._id }).lean();
+    const roleIds = userRoles.map(ur => ur.roleId);
+    const roles = roleIds.length > 0
+      ? await this.model.SysRole.find({ _id: { $in: roleIds }, delFlag: '0' }).lean()
+      : [];
+
+    return { roles, roleIds: roleIds.map(id => id.toString()) };
   }
 
   /**
-   * 根据部门ID查询部门信息
-   * @param {number} deptId - 部门ID
-   * @return {object} 部门信息
-   */
-  async selectDeptByDeptId(deptId) {
-    const { ctx } = this;
-    
-    if (!deptId) {
-      return null;
-    }
-    
-    return await ctx.helper.getDB(ctx).sysDeptMapper.selectDeptById([], {
-      deptId
-    });
-  }
-
-  /**
-   * 根据用户对象查询用户详情（包含部门和角色列表）
-   * @param {object} user - 用户对象（必须包含 userName 和 deptId）
-   * @return {object} 用户详情（包含 dept、roles 和 roleIds 字段）
+   * 查询用户详情（包含部门和角色）
    */
   async selectUserWithDeptAndRoles(user) {
-    const { ctx } = this;
-    
-    if (!user || !user.userName) {
-      return null;
-    }
-    
-    // 1. 查询角色列表和角色ID
+    if (!user || !user.userName) return null;
+
     const { roles, roleIds } = await this.selectRolesByUserName(user.userName);
-    
-    // 2. 查询部门信息
-    const dept = await this.selectDeptByDeptId(user.deptId);
-    
-    // 3. 组装结果
+
     return {
       ...user,
-      dept,
+      dept: user.deptId || null,
       roles,
-      roleIds
+      roleIds,
     };
   }
 
   /**
-   * 根据用户名查询用�?
-   * @param {string} userName - 用户�?
-   * @return {object} 用户信息
+   * 根据用户名查询用户
    */
   async selectUserByUserName(userName) {
-    const { ctx } = this;
-
-    const user = await ctx.helper
-      .getDB(ctx)
-      .sysUserMapper.selectUserByUserName([], {
-        userName,
-      });
-
-    return user;
+    const user = await this.model.SysUser
+      .findOne({ userName, delFlag: '0' })
+      .populate('deptId')
+      .lean();
+    return this._normalizeUser(user);
   }
 
-  /**
-   * 校验用户名是否唯一
-   * @param {object} user - 用户对象
-   * @return {boolean} true-唯一 false-不唯一
-   */
+  // ==================== 唯一性校验 ====================
+
   async checkUserNameUnique(user) {
-    const { ctx } = this;
-
-    return await ctx.helper.getDB(ctx).sysUserMapper.checkUserNameUnique([], {
+    const existing = await this.model.SysUser.findOne({
       userName: user.userName,
-    });
+      delFlag: '0',
+    }).lean();
+
+    return !existing || existing._id.toString() === (user.userId || user._id);
   }
 
-  /**
-   * 校验手机号是否唯一
-   * @param {object} user - 用户对象
-   * @return {boolean} true-唯一 false-不唯一
-   */
   async checkPhoneUnique(user) {
-    const { ctx } = this;
-
-    return await ctx.helper.getDB(ctx).sysUserMapper.checkPhoneUnique([], {
+    const existing = await this.model.SysUser.findOne({
       phonenumber: user.phonenumber,
-    });
+      delFlag: '0',
+    }).lean();
+
+    return !existing || existing._id.toString() === (user.userId || user._id);
   }
 
-  /**
-   * 校验邮箱是否唯一
-   * @param {object} user - 用户对象
-   * @return {boolean} true-唯一 false-不唯一
-   */
   async checkEmailUnique(user) {
-    const { ctx } = this;
-
-    return await ctx.helper.getDB(ctx).sysUserMapper.checkEmailUnique([], {
+    const existing = await this.model.SysUser.findOne({
       email: user.email,
-    });
+      delFlag: '0',
+    }).lean();
+
+    return !existing || existing._id.toString() === (user.userId || user._id);
+  }
+
+  // ==================== 部门查询 ====================
+
+  async selectDeptByDeptId(deptId) {
+    if (!deptId) return null;
+    return await this.ctx.service.system.dept.selectDeptById(deptId);
   }
 
   /**
-   * 校验用户是否允许操作
-   * @param {object} user - 用户对象
+   * 获取部门及其所有子部门ID
    */
-  checkUserAllowed(user) {
-    const { ctx } = this;
+  async _getDeptAndChildrenIds(deptId) {
+    const dept = await this.model.SysDept.findById(deptId).lean();
+    if (!dept) return [deptId];
 
-    if (user.userId && ctx.helper.isAdmin(user.userId)) {
+    // 查找 ancestors 包含该 deptId 的所有部门
+    const children = await this.model.SysDept
+      .find({ ancestors: deptId, delFlag: '0' })
+      .select('_id')
+      .lean();
+
+    return [deptId, ...children.map(d => d._id)];
+  }
+
+  // ==================== 校验 ====================
+
+  checkUserAllowed(user) {
+    if (user && this.ctx.helper.isAdmin(user._id ? user.userName : user)) {
       throw new Error("不允许操作超级管理员用户");
     }
   }
 
-  /**
-   * 校验用户是否有数据权�?
-   * @param {number} userId - 用户ID
-   */
   async checkUserDataScope(userId) {
     const { ctx } = this;
-
-    // 管理员拥有所有数据权�?
-    if (ctx.helper.isAdmin(ctx.state.user.userId)) {
-      return;
-    }
-
+    if (ctx.helper.isAdmin(ctx.state.user)) return;
     // TODO: 实现数据权限校验
   }
 
-  /**
-   * 新增用户
-   * @param {object} user - 用户对象
-   * @return {number} 影响行数
-   */
+  // ==================== 新增 ====================
+
   async insertUser(user) {
     const { ctx } = this;
-
-    // 设置创建信息
     user.createBy = ctx.state.user.userName;
 
-    // 插入用户
-    const result = await ctx.helper
-      .getMasterDB(ctx)
-      .sysUserMapper.insertUser([], user);
+    const doc = {
+      createBy: user.createBy,
+      createTime: new Date(),
+    };
 
-    if (result) {
-      const userId = result;
+    // 动态设置字段（非空才设置）
+    if (user.deptId) doc.deptId = user.deptId;
+    if (user.userName) doc.userName = user.userName;
+    if (user.nickName) doc.nickName = user.nickName;
+    if (user.email) doc.email = user.email;
+    if (user.avatar) doc.avatar = user.avatar;
+    if (user.phonenumber) doc.phonenumber = user.phonenumber;
+    if (user.sex) doc.sex = user.sex;
+    if (user.password) doc.password = user.password;
+    if (user.status) doc.status = user.status;
+    if (user.pwdUpdateDate) doc.pwdUpdateDate = user.pwdUpdateDate;
+    if (user.remark) doc.remark = user.remark;
 
-      // 插入用户与岗位关�?
-      if (user.postIds && user.postIds.length > 0) {
-        await this.insertUserPost(userId, user.postIds);
-      }
+    const newUser = await this.model.SysUser.create(doc);
 
-      // 插入用户与角色关�?
-      if (user.roleIds && user.roleIds.length > 0) {
-        await this.insertUserRole(userId, user.roleIds);
-      }
-
-      return 1;
+    // 插入用户与岗位关联
+    if (user.postIds && user.postIds.length > 0) {
+      await this.insertUserPost(newUser._id, user.postIds);
     }
 
-    return 0;
+    // 插入用户与角色关联
+    if (user.roleIds && user.roleIds.length > 0) {
+      await this.insertUserRole(newUser._id, user.roleIds);
+    }
+
+    return 1;
   }
 
-  /**
-   * 修改用户
-   * @param {object} user - 用户对象
-   * @return {number} 影响行数
-   */
+  // ==================== 修改 ====================
+
   async updateUser(user) {
     const { ctx } = this;
-
-    // 设置更新信息
     user.updateBy = ctx.state.user.userName;
 
-    // 删除用户与角色关�?
-    await ctx.helper
-      .getMasterDB(ctx)
-      .sysUserRoleMapper.deleteUserRoleByUserId([], { userId: user.userId });
+    const setFields = { updateTime: new Date() };
 
-    // 插入用户与角色关�?
+    if (user.deptId != null) setFields.deptId = user.deptId;
+    if (user.nickName) setFields.nickName = user.nickName;
+    if (user.email !== undefined) setFields.email = user.email;
+    if (user.phonenumber !== undefined) setFields.phonenumber = user.phonenumber;
+    if (user.sex) setFields.sex = user.sex;
+    if (user.avatar) setFields.avatar = user.avatar;
+    if (user.password) setFields.password = user.password;
+    if (user.status) setFields.status = user.status;
+    if (user.loginIp) setFields.loginIp = user.loginIp;
+    if (user.loginDate) setFields.loginDate = user.loginDate;
+    if (user.updateBy) setFields.updateBy = user.updateBy;
+    if (user.remark !== undefined) setFields.remark = user.remark;
+
+    const _id = this._toObjectId(user.userId || user._id);
+
+    // 更新角色关联
+    await this.model.SysUserRole.deleteMany({ userId: _id });
     if (user.roleIds && user.roleIds.length > 0) {
-      await this.insertUserRole(user.userId, user.roleIds);
+      await this.insertUserRole(_id, user.roleIds);
     }
 
-    // 删除用户与岗位关�?
-    await ctx.helper
-      .getMasterDB(ctx)
-      .sysUserPostMapper.deleteUserPostByUserId([], { userId: user.userId });
-
-    // 插入用户与岗位关�?
+    // 更新岗位关联
+    await this.model.SysUserPost.deleteMany({ userId: _id });
     if (user.postIds && user.postIds.length > 0) {
-      await this.insertUserPost(user.userId, user.postIds);
+      await this.insertUserPost(_id, user.postIds);
     }
 
-    // 更新用户
-    const result = await ctx.helper
-      .getMasterDB(ctx)
-      .sysUserMapper.updateUser([], user);
+    const result = await this.model.SysUser.updateOne(
+      { _id },
+      { $set: setFields }
+    );
 
-    return result;
+    return result.modifiedCount;
   }
 
-  /**
-   * 修改用户状�?
-   * @param {object} user - 用户对象
-   * @return {number} 影响行数
-   */
   async updateUserStatus(user) {
-    const { ctx } = this;
-
-    const result = await ctx.helper
-      .getMasterDB(ctx)
-      .sysUserMapper.updateUserStatus([], user);
-
-    return result;
+    const _id = this._toObjectId(user.userId || user._id);
+    const result = await this.model.SysUser.updateOne(
+      { _id },
+      { $set: { status: user.status, updateTime: new Date() } }
+    );
+    return result.modifiedCount;
   }
 
-  /**
-   * 重置用户密码
-   * @param {object} user - 用户对象
-   * @return {number} 影响行数
-   */
   async resetPwd(user) {
-    const { ctx } = this;
-
-    const result = await ctx.helper
-      .getMasterDB(ctx)
-      .sysUserMapper.resetUserPwd([], user);
-
-    return result;
+    const _id = this._toObjectId(user.userId || user._id);
+    const result = await this.model.SysUser.updateOne(
+      { _id },
+      { $set: { password: user.password, pwdUpdateDate: new Date(), updateTime: new Date() } }
+    );
+    return result.modifiedCount;
   }
 
-  /**
-   * 删除用户
-   * @param {array} userIds - 用户ID数组
-   * @return {number} 影响行数
-   */
+  // ==================== 删除 ====================
+
   async deleteUserByIds(userIds) {
-    const { ctx } = this;
+    const ids = userIds.map(id => this._toObjectId(id));
 
-    // 删除用户与角色关�?
-    await ctx.helper.getMasterDB(ctx).sysUserRoleMapper.deleteUserRole([], {
-      array: userIds,
-    });
+    // 删除关联记录
+    await this.model.SysUserRole.deleteMany({ userId: { $in: ids } });
+    await this.model.SysUserPost.deleteMany({ userId: { $in: ids } });
 
-    // 删除用户与岗位关�?
-    await ctx.helper.getMasterDB(ctx).sysUserPostMapper.deleteUserPost([], {
-      array: userIds,
-    });
-
-    // 删除用户
-    const result = await ctx.helper
-      .getMasterDB(ctx)
-      .sysUserMapper.deleteUserByIds([], {
-        array: userIds,
-      });
-
-    return result;
+    // 软删除
+    const result = await this.model.SysUser.updateMany(
+      { _id: { $in: ids } },
+      { $set: { delFlag: '2', updateTime: new Date() } }
+    );
+    return result.modifiedCount;
   }
 
-  /**
-   * 用户授权角色
-   * @param {number} userId - 用户ID
-   * @param {array} roleIds - 角色ID数组
-   */
+  // ==================== 授权管理 ====================
+
   async insertUserAuth(userId, roleIds) {
-    const { ctx } = this;
-
-    // 删除用户与角色关�?
-    await ctx.helper
-      .getMasterDB(ctx)
-      .sysUserRoleMapper.deleteUserRoleByUserId([], { userId });
-
-    // 插入用户与角色关�?
-    await this.insertUserRole(userId, roleIds);
+    const _id = this._toObjectId(userId);
+    await this.model.SysUserRole.deleteMany({ userId: _id });
+    await this.insertUserRole(_id, roleIds);
   }
 
-  /**
-   * 插入用户与角色关�?
-   * @param {number} userId - 用户ID
-   * @param {array} roleIds - 角色ID数组
-   */
   async insertUserRole(userId, roleIds) {
-    const { ctx } = this;
-
-    if (!roleIds || roleIds.length === 0) {
-      return;
-    }
-
-    const userRoles = roleIds.map((roleId) => ({
-      userId,
-      roleId,
+    if (!roleIds || roleIds.length === 0) return;
+    const docs = roleIds.map(roleId => ({
+      userId: this._toObjectId(userId),
+      roleId: this._toObjectId(roleId),
     }));
-
-    await ctx.helper
-      .getMasterDB(ctx)
-      .sysUserRoleMapper.batchUserRole([], { list: userRoles });
+    await this.model.SysUserRole.insertMany(docs);
   }
 
-  /**
-   * 插入用户与岗位关�?
-   * @param {number} userId - 用户ID
-   * @param {array} postIds - 岗位ID数组
-   */
   async insertUserPost(userId, postIds) {
-    const { ctx } = this;
-
-    if (!postIds || postIds.length === 0) {
-      return;
-    }
-
-    const userPosts = postIds.map((postId) => ({
-      userId,
-      postId,
+    if (!postIds || postIds.length === 0) return;
+    const docs = postIds.map(postId => ({
+      userId: this._toObjectId(userId),
+      postId: this._toObjectId(postId),
     }));
-
-    await ctx.helper
-      .getMasterDB(ctx)
-      .sysUserPostMapper.batchUserPost([], { list: userPosts });
+    await this.model.SysUserPost.insertMany(docs);
   }
 
-  /**
-   * 导入用户数据
-   * @param {array} userList - 用户列表
-   * @param {boolean} updateSupport - 是否更新已存在的用户
-   * @param {string} operName - 操作�?
-   * @return {string} 导入结果信息
-   */
+  // ==================== 导入 ====================
+
   async importUser(userList, updateSupport = false, operName) {
     const { ctx } = this;
 
@@ -459,20 +432,14 @@ class UserService extends Service {
 
     for (const user of userList) {
       try {
-        
-        // 根据部门名称查询部门ID
         if (user.deptName) {
           const dept = await ctx.service.system.dept.selectDeptByName(user.deptName);
-          if (dept) {
-            user.deptId = dept.deptId;
-          }
+          if (dept) user.deptId = dept._id;
         }
-        
-        // 校验用户名是否存�?
+
         const existUser = await this.selectUserByUserName(user.userName);
 
         if (!existUser) {
-          // 新增用户
           user.password = await ctx.helper.security.encryptPassword(
             user.password || "123456"
           );
@@ -480,10 +447,9 @@ class UserService extends Service {
           await this.insertUser(user);
           successNum++;
         } else if (updateSupport) {
-          // 更新用户
-          user.userId = existUser.userId;
+          user.userId = existUser._id;
           user.updateBy = operName;
-          await this.updateUser(user);
+          await this.updateUserProfile(user);
           successNum++;
         } else {
           failureNum++;
@@ -491,150 +457,126 @@ class UserService extends Service {
         }
       } catch (err) {
         failureNum++;
-        failureMsg.push(`用户 ${user.userName} 导入失败�?{err.message}`);
+        failureMsg.push(`用户 ${user.userName} 导入失败：${err.message}`);
       }
     }
 
     if (failureNum > 0) {
-      return `导入成功 ${successNum} 条，失败 ${failureNum} 条�?{failureMsg.join(
-        "; "
-      )}`;
+      return `导入成功 ${successNum} 条，失败 ${failureNum} 条：${failureMsg.join("; ")}`;
     }
-
     return `导入成功 ${successNum} 条`;
   }
 
-  /**
-   * 修改用户个人信息
-   * @param {object} user - 用户对象
-   * @return {number} 影响行数
-   */
+  // ==================== 个人中心 ====================
+
   async updateUserProfile(user) {
     const { ctx } = this;
-
-    // 设置更新信息
     user.updateBy = ctx.state.user.userName;
 
-    // 更新用户
-    const result = await ctx.helper
-      .getMasterDB(ctx)
-      .sysUserMapper.updateUser([], user);
+    const setFields = { updateTime: new Date() };
 
-    return result;
+    if (user.deptId != null) setFields.deptId = user.deptId;
+    if (user.nickName) setFields.nickName = user.nickName;
+    if (user.email !== undefined) setFields.email = user.email;
+    if (user.phonenumber !== undefined) setFields.phonenumber = user.phonenumber;
+    if (user.sex) setFields.sex = user.sex;
+    if (user.avatar) setFields.avatar = user.avatar;
+    if (user.password) setFields.password = user.password;
+    if (user.status) setFields.status = user.status;
+    if (user.loginIp) setFields.loginIp = user.loginIp;
+    if (user.loginDate) setFields.loginDate = user.loginDate;
+    if (user.updateBy) setFields.updateBy = user.updateBy;
+    if (user.remark !== undefined) setFields.remark = user.remark;
+
+    const _id = this._toObjectId(user.userId || user._id);
+    const result = await this.model.SysUser.updateOne({ _id }, { $set: setFields });
+    return result.modifiedCount;
   }
 
-  /**
-   * 修改用户密码
-   * @param {number} userId - 用户ID
-   * @param {string} password - 新密码（已加密）
-   * @return {number} 影响行数
-   */
   async resetUserPwd(userId, password) {
-    const { ctx } = this;
-
-    const user = {
-      userId,
-      password,
-    };
-
-    const result = await ctx.helper
-      .getMasterDB(ctx)
-      .sysUserMapper.resetUserPwd([], user);
-
-    return result;
+    const _id = this._toObjectId(userId);
+    const result = await this.model.SysUser.updateOne(
+      { _id },
+      { $set: { password, pwdUpdateDate: new Date(), updateTime: new Date() } }
+    );
+    return result.modifiedCount;
   }
 
-  /**
-   * 修改用户头像
-   * @param {number} userId - 用户ID
-   * @param {string} avatar - 头像地址
-   * @return {boolean} 是否成功
-   */
   async updateUserAvatar(userId, avatar) {
-    const { ctx } = this;
-
-    const user = {
-      userId,
-      avatar,
-    };
-
-    return await ctx.helper
-      .getMasterDB(ctx)
-      .sysUserMapper.updateUserAvatar([], user);
+    const _id = this._toObjectId(userId);
+    const result = await this.model.SysUser.updateOne(
+      { _id },
+      { $set: { avatar, updateTime: new Date() } }
+    );
+    return result.modifiedCount > 0;
   }
 
-  /**
-   * 查询用户角色组
-   * @param {string} userName - 用户名
-   * @return {string} 角色组
-   */
   async selectUserRoleGroup(userName) {
-    const { ctx } = this;
-
-    const roles = await ctx.helper
-      .getMasterDB(ctx)
-      .sysRoleMapper.selectRolesByUserName([],{userName});
-
-    if (!roles || roles.length === 0) {
-      return '';
-    }
-
-    return roles.map((r) => r.roleName).join(',');
+    const { roles } = await this.selectRolesByUserName(userName);
+    return roles.map(r => r.roleName).join(',');
   }
 
-  /**
-   * 查询用户岗位组
-   * @param {string} userName - 用户名
-   * @return {string} 岗位组
-   */
   async selectUserPostGroup(userName) {
-    const { ctx } = this;
+    const user = await this.model.SysUser.findOne({ userName, delFlag: '0' }).lean();
+    if (!user) return '';
 
-    const posts = await ctx.helper
-      .getMasterDB(ctx)
-      .sysPostMapper.selectPostsByUserName([], { userName });
+    const userPosts = await this.model.SysUserPost.find({ userId: user._id }).lean();
+    const postIds = userPosts.map(up => up.postId);
+    if (postIds.length === 0) return '';
 
-    if (!posts || posts.length === 0) {
-      return '';
-    }
-
-    return posts.map((p) => p.postName).join(',');
+    const posts = await this.model.SysPost.find({ _id: { $in: postIds } }).lean();
+    return posts.map(p => p.postName).join(',');
   }
 
-  /**
-   * 查询已分配用户角色列表
-   * @param {object} params - 查询参数
-   * @return {object} 分页结果
-   */
+  // ==================== 角色分配用户查询 ====================
+
   @DataScope({ deptAlias: "d", userAlias: "u" })
   async selectAllocatedList(params) {
-    const { ctx } = this;
-
-    const mapper = ctx.helper.getDB(ctx).sysUserMapper;
-
-    return await ctx.helper.pageQuery(
-      mapper.selectAllocatedListMapper([], params),
-      params,
-      mapper.db()
-    );
+    return await this._selectUserByRoleFilter(params, true);
   }
 
-  /**
-   * 查询未分配用户角色列表
-   * @param {object} params - 查询参数
-   * @return {array} 用户列表
-   */
   @DataScope({ deptAlias: "d", userAlias: "u" })
   async selectUnallocatedList(params) {
-    const { ctx } = this;
+    return await this._selectUserByRoleFilter(params, false);
+  }
 
-    const mapper = ctx.helper.getDB(ctx).sysUserMapper;
+  async _selectUserByRoleFilter(params, allocated) {
+    const filter = { delFlag: '0' };
 
-    return await ctx.helper.pageQuery(
-      mapper.selectUnallocatedListMapper([], params),
+    if (params.userName) {
+      filter.userName = { $regex: params.userName, $options: 'i' };
+    }
+    if (params.phonenumber) {
+      filter.phonenumber = { $regex: params.phonenumber, $options: 'i' };
+    }
+
+    // 查询已分配/未分配改角色的用户
+    const roleId = this._toObjectId(params.roleId);
+    const existingUR = await this.model.SysUserRole.find({ roleId }).select('userId').lean();
+    const existingUserIds = existingUR.map(ur => ur.userId.toString());
+
+    if (allocated) {
+      filter._id = { $in: existingUserIds.map(id => this._toObjectId(id)) };
+    } else {
+      filter._id = { $nin: existingUserIds.map(id => this._toObjectId(id)) };
+    }
+
+    const result = await this.ctx.helper.pageQueryMongo(
+      this.model.SysUser,
+      filter,
       params,
-      mapper.db()
+      { populate: 'deptId', idField: 'userId' }
     );
+    return result;
+  }
+
+  // ==================== 工具 ====================
+
+  _toObjectId(id) {
+    if (!id) return id;
+    return typeof id === 'string'
+      ? new this.app.mongoose.Types.ObjectId(id)
+      : id;
   }
 }
 

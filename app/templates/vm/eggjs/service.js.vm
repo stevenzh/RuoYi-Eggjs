@@ -1,79 +1,82 @@
 /*
- * @Description: ${functionName}服务层
+ * @Description: ${functionName}服务层（使用 egg-mysql 原生方式）
  * @Author: ${author}
  * @Date: ${datetime}
  */
 
 const Service = require('egg').Service;
+const mysql2 = require('mysql2');
 
 class ${ClassName}Service extends Service {
+  constructor(...args) {
+    super(...args);
+    this.SELECT_COLUMNS = '...'; // TODO: define your columns
+  }
+
+  _getDb() {
+    return this.app.mysql.get('ruoyi');
+  }
+
+  _escape(val) {
+    return mysql2.escape(val);
+  }
 
   /**
    * 查询${functionName}列表（分页）
-   * @param {object} params - 查询参数
-   * @return {object} 查询结果
    */
   async select${ClassName}List(params = {}) {
-    const { ctx } = this;
-    const mapper = ctx.helper.getDB(ctx).${className}Mapper;
-
-    return await ctx.helper.pageQuery(
-      mapper.select${ClassName}ListMapper([], params),
-      params,
-      mapper.db()
-    );
+    const db = this._getDb();
+    // TODO: build dynamic WHERE clause
+    const sql = `select * from ... where ...`;
+    return await this.ctx.helper.pageQuery(sql, params, db);
   }
 
   /**
    * 查询${functionName}详情
-   * @param {${pkColumn.javaType}} ${pkColumn.javaField} - ${pkColumn.columnComment}
-   * @return {object} ${functionName}信息
    */
   async select${ClassName}By${pkColumn.capJavaField}(${pkColumn.javaField}) {
-    const { ctx } = this;
-    
-    return await ctx.helper.getDB(ctx).${className}Mapper.select${ClassName}By${pkColumn.capJavaField}([],{${pkColumn.javaField}});
+    const db = this._getDb();
+    const sql = `select * from ... where ... = ${this._escape(${pkColumn.javaField})}`;
+    return await db.select(sql);
   }
 
   /**
    * 新增${functionName}
-   * @param {object} data - ${functionName}信息
-   * @return {object} 新增结果
    */
   async insert${ClassName}(data) {
-    const { ctx } = this;
-    
-    const result = await ctx.helper.getMasterDB(ctx).${className}Mapper.insert${ClassName}([],data);
-    
+    const db = this._getDb();
+    // TODO: build dynamic INSERT
+    const fields = [];
+    const values = [];
+    // ...
+    const sql = `insert into ... (${fields.join(', ')}) values(${values.join(', ')})`;
+    const result = await db.insert(sql);
     return { code: 200, msg: '新增成功', data: result };
   }
 
   /**
    * 修改${functionName}
-   * @param {object} data - ${functionName}信息
-   * @return {object} 修改结果
    */
   async update${ClassName}(data) {
-    const { ctx } = this;
-    
-    const result = await ctx.helper.getMasterDB(ctx).${className}Mapper.update${ClassName}([],data);
-    
+    const db = this._getDb();
+    // TODO: build dynamic UPDATE
+    const setClauses = [];
+    // ...
+    const sql = `update ... set ${setClauses.join(', ')} where ... = ${this._escape(data.id)}`;
+    const result = await db.update(sql);
     return { code: 200, msg: '修改成功', data: result };
   }
 
   /**
    * 删除${functionName}
-   * @param {array} ${pkColumn.javaField}s - ${pkColumn.columnComment}数组
-   * @return {object} 删除结果
    */
   async delete${ClassName}By${pkColumn.capJavaField}s(${pkColumn.javaField}s) {
-    const { ctx } = this;
-    
-    const result = await ctx.helper.getMasterDB(ctx).${className}Mapper.delete${ClassName}By${pkColumn.capJavaField}s([],{array:${pkColumn.javaField}s});
-    
+    const db = this._getDb();
+    const ids = ${pkColumn.javaField}s.map(id => this._escape(id)).join(', ');
+    const sql = `delete from ... where ... in (${ids})`;
+    const result = await db.del(sql);
     return { code: 200, msg: '删除成功', data: result };
   }
 }
 
 module.exports = ${ClassName}Service;
-

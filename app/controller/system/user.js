@@ -75,10 +75,10 @@ module.exports = app => {
         }
         
         // 校验数据权限
-        await service.system.user.checkUserDataScope(parseInt(userId));
+        await service.system.user.checkUserDataScope(userId);
         
         // 查询用户信息
-        const user = await service.system.user.selectUserById(parseInt(userId));
+        const user = await service.system.user.selectUserById(userId);
         
         if (!user) {
           ctx.body = {
@@ -89,15 +89,15 @@ module.exports = app => {
         }
         
         // 查询用户的岗位ID列表
-        const postIds = await service.system.post.selectPostListByUserId(parseInt(userId));
+        const postIds = await service.system.post.selectPostListByUserId(userId);
         
         // 查询所有角色和岗位
         const roles = await service.system.role.selectRoleAll();
         const posts = await service.system.post.selectPostAll();
         
         // 过滤掉管理员角色（非管理员用户不能分配管理员角色）
-        const isAdmin = ctx.helper.isAdmin(parseInt(userId));
-        const filteredRoles = isAdmin ? roles : roles.filter(r => !ctx.helper.isAdmin(r.roleId));
+        const isAdmin = ctx.helper.isAdmin(ctx.state.user);
+        const filteredRoles = isAdmin ? roles : roles.filter(r => r.roleKey !== 'admin');
         const roleIds = user.roleIds;
         
         ctx.body = {
@@ -242,8 +242,8 @@ module.exports = app => {
         
         // 校验手机号是否唯一
         if (user.phonenumber) {
-          const checkUser = await service.system.user.checkPhoneUnique(user);
-          if (checkUser && checkUser.userId !== user.userId) {
+          const isPhoneUnique = await service.system.user.checkPhoneUnique(user);
+          if (!isPhoneUnique) {
             ctx.body = {
               code: 500,
               msg: `修改用户'${user.userName}'失败，手机号码已存在`
@@ -251,11 +251,11 @@ module.exports = app => {
             return;
           }
         }
-        
+
         // 校验邮箱是否唯一
         if (user.email) {
-          const checkUser = await service.system.user.checkEmailUnique(user);
-          if (checkUser && checkUser.userId !== user.userId) {
+          const isEmailUnique = await service.system.user.checkEmailUnique(user);
+          if (!isEmailUnique) {
             ctx.body = {
               code: 500,
               msg: `修改用户'${user.userName}'失败，邮箱账号已存在`
@@ -298,7 +298,7 @@ module.exports = app => {
         const { userIds } = ctx.params;
         
         // 解析用户ID数组
-        const userIdArray = userIds.split(',').map(id => parseInt(id));
+        const userIdArray = userIds.split(',').filter(Boolean);
         
         // 检查是否包含当前用户
         if (userIdArray.includes(ctx.state.user.userId)) {
@@ -415,7 +415,7 @@ module.exports = app => {
         const { userId } = ctx.params;
         
         // 查询用户信息
-        const user = await service.system.user.selectUserById(parseInt(userId));
+        const user = await service.system.user.selectUserById(userId);
         
         if (!user) {
           ctx.body = {
@@ -426,11 +426,11 @@ module.exports = app => {
         }
         
         // 查询用户角色
-        const roles = await service.system.role.selectRolesByUserId(parseInt(userId));
+        const roles = await service.system.role.selectRolesByUserId(userId);
         
         // 过滤掉管理员角色（非管理员用户不能分配管理员角色）
-        const isAdmin = ctx.helper.isAdmin(parseInt(userId));
-        const filteredRoles = isAdmin ? roles : roles.filter(r => !ctx.helper.isAdmin(r.roleId));
+        const isAdmin = ctx.helper.isAdmin(ctx.state.user);
+        const filteredRoles = isAdmin ? roles : roles.filter(r => r.roleKey !== 'admin');
         
         ctx.body = {
           code: 200,
@@ -463,7 +463,7 @@ module.exports = app => {
         
         // 解析角色ID数组
         const roleIdArray = typeof roleIds === 'string' 
-          ? roleIds.split(',').map(id => parseInt(id))
+          ? roleIds.split(',').filter(Boolean)
           : roleIds;
         
         // 用户授权

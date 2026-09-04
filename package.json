@@ -1,17 +1,17 @@
 {
-  "name": "ruoyi-eggjs",
-  "version": "1.1.0",
+  "name": "ruoyi-eggjs-mongo",
+  "version": "1.0.0",
   "description": "",
-  "author": "姜彦汐  <https://www.undsky.com>",
+  "author": "zhangst",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/undsky/ruoyi-eggjs.git"
+    "url": ""
   },
   "bugs": {
-    "url": "https://github.com/undsky/ruoyi-eggjs/issues"
+    "url": ""
   },
-  "homepage": "https://github.com/undsky/ruoyi-eggjs#readme",
+  "homepage": "",
   "private": true,
   "egg": {
     "declarations": true
@@ -25,23 +25,23 @@
     "bull": "^4.16.5",
     "cron-parser": "^4.9.0",
     "dayjs": "^1.11.10",
+    "dotenv": "^16.4.5",
     "egg": "^3",
     "egg-cors": "^3.0.0",
     "egg-decorator-router": "^1.0.7",
     "egg-jwt": "^3.1.7",
+    "egg-mongoose": "^4.0.1",
+    "egg-redis": "^2.6.1",
     "egg-scripts": "^2",
     "fs-extra": "^11.2.0",
     "lodash": "^4.17.21",
     "nanoid": "^3.3.7",
     "node-schedule": "^2.1.1",
     "ruoyi-eggjs-cache": "^1.1.6",
-    "ruoyi-eggjs-mybatis": "^1.1.13",
-    "ruoyi-eggjs-mysql": "^1.1.15",
-    "ruoyi-eggjs-pgsql": "^1.1.6",
     "ruoyi-eggjs-ratelimiter": "^1",
-    "ruoyi-eggjs-sqlite": "^1.1.9",
     "stream-wormhole": "^2.0.1",
     "trek-captcha": "^0.4.0",
+    "uuid": "^8.3.2",
     "velocityjs": "^2.1.5",
     "xlsx": "^0.18.5"
   },
@@ -59,8 +59,7 @@
   "scripts": {
     "start": "egg-scripts start --port=7001 --daemon --title=ruoyi-eggjs-server",
     "stop": "egg-scripts stop --title=ruoyi-eggjs-server",
-    "mapper": "rec mapper",
     "debug": "egg-bin debug",
-    "dev": "npm-run-all -p mapper debug"
+    "dev": "egg-bin debug"
   }
 }

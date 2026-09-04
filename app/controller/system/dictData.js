@@ -59,7 +59,7 @@ module.exports = app => {
         const { dictCode } = ctx.params;
         
         // 查询字典数据信息
-        const dictData = await service.system.dictData.selectDictDataById(parseInt(dictCode));
+        const dictData = await service.system.dictData.selectDictDataById(dictCode);
         
         if (!dictData) {
           ctx.body = {
@@ -188,7 +188,7 @@ module.exports = app => {
         const { dictCodes } = ctx.params;
         
         // 解析字典数据ID数组
-        const dictCodeArray = dictCodes.split(',').map(id => parseInt(id));
+        const dictCodeArray = dictCodes.split(',').filter(Boolean);
         
         // 删除字典数据
         const rows = await service.system.dictData.deleteDictDataByIds(dictCodeArray);

@@ -24,21 +24,20 @@ module.exports = (appInfo) => {
   config.maxIpsCount = 1;
 
   config.security = {
-    domainWhiteList: ["*.undsky.com"],
+    domainWhiteList: ["*.opentravelsoft.cn"],
     xframe: {
       ignore: [],
     },
   };
 
-  config.mysql = {
-    // 启用驼峰命名转换：数据库字段 user_name -> userName
-    camelCase: true,
-    clients: {
-      ruoyi: {
-        host: "127.0.0.1",
-        user: "root",
-        password: "jyx123",
-        database: "ruoyi",
+  config.mongoose = {
+    client: {
+      url: 'mongodb://admin:admin@127.0.0.1:27017/ruoyi?authSource=admin',
+      options: {
+        maxPoolSize: 10,
+        minPoolSize: 2,
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
       },
     },
   };

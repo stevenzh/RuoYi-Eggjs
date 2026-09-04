@@ -54,7 +54,7 @@ module.exports = app => {
       const { ctx, service } = this;
       
       try {
-        const jobLogId = parseInt(ctx.params.jobLogId);
+        const jobLogId = ctx.params.jobLogId;
         
         // 查询调度日志信息
         const jobLog = await service.monitor.jobLog.selectJobLogById(jobLogId);
@@ -92,7 +92,7 @@ module.exports = app => {
       const { ctx, service } = this;
       
       try {
-        const jobLogIds = ctx.params.jobLogIds.split(',').map(id => parseInt(id));
+        const jobLogIds = ctx.params.jobLogIds.split(',').filter(Boolean);
         
         // 删除调度日志
         const result = await service.monitor.jobLog.deleteJobLogByIds(jobLogIds);

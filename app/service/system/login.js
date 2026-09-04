@@ -1,58 +1,65 @@
-﻿/*
- * @Description: 登录认证服务层
+/*
+ * @Description: 登录认证服务层（MongoDB/Mongoose 版本）
  * @Author: AI Assistant
  * @Date: 2025-10-23
  */
 
-const Service = require("egg").Service;
-const captcha = require("trek-captcha");
-const { nanoid } = require("nanoid");
-const dayjs = require("dayjs");
-const { CacheConstants } = require("../../constant");
+const Service = require('egg').Service;
+const captcha = require('trek-captcha');
+const { nanoid } = require('nanoid');
+const dayjs = require('dayjs');
+const { CacheConstants } = require('../../constant');
 
 class LoginService extends Service {
   /**
    * 用户登录
    * @param {string} userName - 用户名
    * @param {string} password - 密码
-   * @return {object} 用户信息
+   * @return {object} 用户信息（含 dept 和 roles）
    */
   async login(userName, password) {
     const { ctx, service } = this;
 
     // 1. 查询用户
-    const users =
-      await ctx.helper.getDB(ctx).sysUserMapper.selectUserByUserName(
-        null,
-        { userName }
-      );
-
-    if (!users || users.length === 0) {
-      throw new Error("用户不存在或密码错误");
+    const user = await ctx.model.SysUser.findOne({
+      userName,
+      delFlag: '0',
+    }).populate('deptId').lean();
+    if (!user) {
+      throw new Error('用户不存在或密码错误');
     }
-
-    const user = Array.isArray(users) ? users[0] : users;
 
     // 2. 检查用户状态
-    if (user.delFlag === "2") {
-      throw new Error("用户已被删除");
+    if (user.delFlag === '2') {
+      throw new Error('用户已被删除');
     }
 
-    if (user.status === "1") {
-      throw new Error("用户已被停用，请联系管理员");
+    if (user.status === '1') {
+      throw new Error('用户已被停用，请联系管理员');
     }
 
-    // 3. 验证密码（包含错误次数限制）
+    // 3. 查询用户角色
+    const userRoles = await ctx.model.SysUserRole.find({ userId: user._id }).lean();
+    const roleIds = userRoles.map(ur => ur.roleId);
+    const roles = roleIds.length > 0
+      ? await ctx.model.SysRole.find({ _id: { $in: roleIds }, delFlag: '0' }).lean()
+      : [];
+
+    // 4. 验证密码（包含错误次数限制）
     await service.system.password.validate(user, password);
 
-    // 4. 更新登录信息
-    await ctx.helper.getMasterDB(ctx).sysUserMapper.updateLoginInfo([], {
-      userId: user.userId,
-      loginIp: ctx.request.ip,
-      loginDate: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-    });
+    // 5. 更新登录信息
+    await ctx.model.SysUser.updateOne(
+      { _id: user._id },
+      { $set: { loginIp: ctx.request.ip, loginDate: new Date() } }
+    );
 
-    return user;
+    // 6. 组装返回结果（兼容旧格式：含 dept 对象和 roles 数组）
+    return {
+      ...user,
+      dept: user.deptId || null,
+      roles,
+    };
   }
 
   /**
@@ -65,23 +72,23 @@ class LoginService extends Service {
 
     // 获取默认密码
     const initPassword = await ctx.service.system.config.selectConfigByKey(
-      "sys.user.initPassword"
+      'sys.user.initPassword'
     );
 
     // 加密密码
     const security = ctx.helper.security;
     const hashedPassword = await security.encryptPassword(
-      password || initPassword || "123456"
+      password || initPassword || '123456'
     );
 
     // 插入用户
-    await ctx.helper.getMasterDB(ctx).sysUserMapper.insertUser([], {
+    await ctx.model.SysUser.create({
       userName,
       nickName: userName,
       password: hashedPassword,
-      status: "0",
-      delFlag: "0",
-      createTime: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+      status: '0',
+      delFlag: '0',
+      createTime: new Date(),
     });
   }
 
@@ -94,7 +101,7 @@ class LoginService extends Service {
     const { app } = this;
 
     if (!code || !uuid) {
-      throw new Error("验证码不能为空");
+      throw new Error('验证码不能为空');
     }
 
     // 从缓存中获取验证码
@@ -102,12 +109,12 @@ class LoginService extends Service {
     const cachedCode = await app.cache.default.get(cacheKey);
 
     if (!cachedCode) {
-      throw new Error("验证码已过期，请重新获取");
+      throw new Error('验证码已过期，请重新获取');
     }
 
     // 验证码不区分大小写
     if (code.toLowerCase() !== cachedCode.toLowerCase()) {
-      throw new Error("验证码错误");
+      throw new Error('验证码错误');
     }
 
     // 验证通过后删除缓存
@@ -136,7 +143,7 @@ class LoginService extends Service {
     await app.cache.default.set(cacheKey, token, { ttl: 300 });
 
     // 将 Buffer 转换为 Base64
-    const base64Img = buffer.toString("base64");
+    const base64Img = buffer.toString('base64');
 
     return {
       uuid,
@@ -152,18 +159,20 @@ class LoginService extends Service {
   async recordOnlineUser(user, token) {
     const { app, ctx } = this;
 
+    const deptName = (user.dept && user.dept.deptName) || user.deptName || '';
+
     const onlineUser = {
       tokenId: token,
-      userId: user.userId,
+      userId: user._id ? user._id.toString() : user.userId,
       userName: user.userName,
-      deptName: user.deptName || "",
+      deptName,
       ipaddr: ctx.request.ip,
       loginTime: dayjs().format('YYYY-MM-DD HH:mm:ss'),
       expireTime: dayjs().add(7, 'day').format('YYYY-MM-DD HH:mm:ss'), // 7天后过期
     };
 
     // 存储到 Redis（与 Token 过期时间一致）
-    const cacheKey = CacheConstants.LOGIN_TOKEN_KEY + user.userId;
+    const cacheKey = CacheConstants.LOGIN_TOKEN_KEY + onlineUser.userId;
     await app.cache.default.set(cacheKey, onlineUser, {
       ttl: 7 * 24 * 60 * 60,
     });
@@ -177,9 +186,8 @@ class LoginService extends Service {
     const { app } = this;
 
     // 将 Token 加入黑名单
-    await app.cache.default.set(jti, "revoked", { ttl: 7 * 24 * 60 * 60 });
+    await app.cache.default.set(jti, 'revoked', { ttl: 7 * 24 * 60 * 60 });
   }
 }
 
 module.exports = LoginService;
-

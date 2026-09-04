@@ -59,7 +59,7 @@ module.exports = app => {
         const { configId } = ctx.params;
         
         // 查询参数配置信息
-        const config = await service.system.config.selectConfigById(parseInt(configId));
+        const config = await service.system.config.selectConfigById(configId);
         
         if (!config) {
           ctx.body = {
@@ -205,7 +205,7 @@ module.exports = app => {
         const { configIds } = ctx.params;
         
         // 解析参数ID数组
-        const configIdArray = configIds.split(',').map(id => parseInt(id));
+        const configIdArray = configIds.split(',').filter(Boolean);
         
         // 删除参数配置
         const rows = await service.system.config.deleteConfigByIds(configIdArray);

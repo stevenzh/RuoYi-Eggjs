@@ -24,21 +24,9 @@ module.exports = {
     enable: true,
     package: "egg-jwt",
   },
-  mybatis: {
+  mongoose: {
     enable: true,
-    package: "ruoyi-eggjs-mybatis",
-  },
-  mysql: {
-    enable: true,
-    package: "ruoyi-eggjs-mysql",
-  },
-  sqlite: {
-    enable: true,
-    package: "ruoyi-eggjs-sqlite",
-  },
-  pgsql: {
-    enable: true,
-    package: "ruoyi-eggjs-pgsql",
+    package: "egg-mongoose",
   },
   ratelimiter: {
     enable: true,

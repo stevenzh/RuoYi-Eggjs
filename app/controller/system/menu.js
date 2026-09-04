@@ -59,7 +59,7 @@ module.exports = app => {
         const { menuId } = ctx.params;
         
         // 查询菜单信息
-        const menu = await service.system.menu.selectMenuById(parseInt(menuId));
+        const menu = await service.system.menu.selectMenuById(menuId);
         
         if (!menu) {
           ctx.body = {
@@ -117,11 +117,11 @@ module.exports = app => {
         }
         
         // 新增菜单
-        const rows = await service.system.menu.insertMenu(menu);
-        
+        const result = await service.system.menu.insertMenu(menu);
+
         ctx.body = {
           code: 200,
-          msg: rows > 0 ? '新增成功' : '新增失败'
+          msg: result ? '新增成功' : '新增失败'
         };
       } catch (err) {
         ctx.logger.error('新增菜单失败:', err);
@@ -175,11 +175,11 @@ module.exports = app => {
         }
         
         // 修改菜单
-        const rows = await service.system.menu.updateMenu(menu);
-        
+        const result = await service.system.menu.updateMenu(menu);
+
         ctx.body = {
           code: 200,
-          msg: rows > 0 ? '修改成功' : '修改失败'
+          msg: result > 0 ? '修改成功' : '修改失败'
         };
       } catch (err) {
         ctx.logger.error('修改菜单失败:', err);
@@ -205,7 +205,7 @@ module.exports = app => {
         const { menuId } = ctx.params;
         
         // 检查是否存在子菜单
-        const hasChild = await service.system.menu.hasChildByMenuId(parseInt(menuId));
+        const hasChild = await service.system.menu.hasChildByMenuId(menuId);
         if (hasChild) {
           ctx.body = {
             code: 500,
@@ -213,9 +213,9 @@ module.exports = app => {
           };
           return;
         }
-        
+
         // 检查菜单是否已分配给角色
-        const existRole = await service.system.menu.checkMenuExistRole(parseInt(menuId));
+        const existRole = await service.system.menu.checkMenuExistRole(menuId);
         if (existRole) {
           ctx.body = {
             code: 500,
@@ -223,13 +223,13 @@ module.exports = app => {
           };
           return;
         }
-        
+
         // 删除菜单
-        const rows = await service.system.menu.deleteMenuById(parseInt(menuId));
-        
+        const result = await service.system.menu.deleteMenuById(menuId);
+
         ctx.body = {
           code: 200,
-          msg: rows > 0 ? '删除成功' : '删除失败'
+          msg: result > 0 ? '删除成功' : '删除失败'
         };
       } catch (err) {
         ctx.logger.error('删除菜单失败:', err);
@@ -292,7 +292,7 @@ module.exports = app => {
         const menus = await service.system.menu.selectMenuList({}, userId);
         
         // 查询角色已分配的菜单ID列表
-        const checkedKeys = await service.system.menu.selectMenuListByRoleId(parseInt(roleId));
+        const checkedKeys = await service.system.menu.selectMenuListByRoleId(roleId);
         
         // 构建树形结构
         const menuTree = service.system.menu.buildMenuTreeSelect(menus);

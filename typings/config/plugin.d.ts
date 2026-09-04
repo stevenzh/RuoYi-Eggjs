@@ -19,10 +19,7 @@ import 'ruoyi-eggjs-cache';
 import 'egg-cors';
 import 'egg-decorator-router';
 import 'egg-jwt';
-import 'ruoyi-eggjs-mybatis';
-import 'ruoyi-eggjs-mysql';
-import 'ruoyi-eggjs-sqlite';
-import 'ruoyi-eggjs-pgsql';
+import 'egg-mongoose';
 import 'ruoyi-eggjs-ratelimiter';
 import '@hackycy/egg-bull';
 import { EggPluginItem } from 'egg';
@@ -44,10 +41,7 @@ declare module 'egg' {
     cors?: EggPluginItem;
     decoratorRouter?: EggPluginItem;
     jwt?: EggPluginItem;
-    mybatis?: EggPluginItem;
-    mysql?: EggPluginItem;
-    sqlite?: EggPluginItem;
-    pgsql?: EggPluginItem;
+    mongoose?: EggPluginItem;
     ratelimiter?: EggPluginItem;
     bull?: EggPluginItem;
   }

@@ -63,10 +63,10 @@ module.exports = (app) => {
         const { roleId } = ctx.params;
 
         // 校验数据权限
-        await service.system.role.checkRoleDataScope(parseInt(roleId));
+        await service.system.role.checkRoleDataScope(roleId);
 
         // 查询角色信息
-        const role = await service.system.role.selectRoleById(parseInt(roleId));
+        const role = await service.system.role.selectRoleById(roleId);
 
         if (!role) {
           ctx.body = {
@@ -219,7 +219,7 @@ module.exports = (app) => {
         const { roleIds } = ctx.params;
 
         // 解析角色ID数组
-        const roleIdArray = roleIds.split(",").map((id) => parseInt(id));
+        const roleIdArray = roleIds.split(",").filter(Boolean);
 
         // 校验是否允许操作
         for (const roleId of roleIdArray) {
@@ -417,7 +417,7 @@ module.exports = (app) => {
         // 解析用户ID数组
         const userIdArray =
           typeof userIds === "string"
-            ? userIds.split(",").map((id) => parseInt(id))
+            ? userIds.split(",").filter(Boolean)
             : userIds;
 
         // 批量取消授权
@@ -459,7 +459,7 @@ module.exports = (app) => {
         // 解析用户ID数组
         const userIdArray =
           typeof userIds === "string"
-            ? userIds.split(",").map((id) => parseInt(id))
+            ? userIds.split(",").filter(Boolean)
             : userIds;
 
         // 批量授权
@@ -498,7 +498,7 @@ module.exports = (app) => {
         // 查询角色已分配的部门ID列表
         const checkedKeys =
           (await service.system.dept.selectDeptListByRoleId(
-            parseInt(roleId)
+            roleId
           )) || [];
         result.checkedKeys = checkedKeys.map((item) => item.deptId);
 

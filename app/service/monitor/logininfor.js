@@ -1,22 +1,45 @@
-﻿/*
+/*
  * @Description: 登录日志服务层
  * @Author: AI Assistant
  * @Date: 2025-10-23
  */
 
 const Service = require('egg').Service;
-const dayjs = require('dayjs');
 const { CacheConstants } = require('../../constant');
 
 class LogininforService extends Service {
-  async selectLogininforPage(params = {}) {
-    const { ctx } = this;
-    const mapper = ctx.helper.getDB(ctx).sysLogininforMapper;
+  _toObjectId(id) {
+    if (!id) return id;
+    return typeof id === 'string'
+      ? new this.app.mongoose.Types.ObjectId(id)
+      : id;
+  }
 
-    return await ctx.helper.pageQuery(
-      mapper.selectLogininforListMapper([], params),
-      params,
-      mapper.db()
+  _buildFilter(params) {
+    const filter = {};
+    if (params.ipaddr) {
+      filter.ipaddr = { $regex: params.ipaddr, $options: 'i' };
+    }
+    if (params.status) filter.status = params.status;
+    if (params.userName) {
+      filter.userName = { $regex: params.userName, $options: 'i' };
+    }
+    const beginTime = (params.params && params.params.beginTime) || params.beginTime;
+    const endTime = (params.params && params.params.endTime) || params.endTime;
+    if (beginTime) {
+      filter.loginTime = { ...filter.loginTime, $gte: new Date(beginTime) };
+    }
+    if (endTime) {
+      filter.loginTime = { ...filter.loginTime, $lte: new Date(endTime) };
+    }
+    return filter;
+  }
+
+  async selectLogininforPage(params = {}) {
+    const filter = this._buildFilter(params);
+    return await this.ctx.helper.pageQueryMongo(
+      this.ctx.model.SysLogininfor, filter, params,
+      { sort: { _id: -1 }, idField: 'infoId' }
     );
   }
 
@@ -27,47 +50,33 @@ class LogininforService extends Service {
    * @return {array} 登录日志列表
    */
   async selectLogininforList(logininfor = {}) {
-    const { ctx } = this;
-    
-    // 查询条件
-    const conditions = {
-      ipaddr: logininfor.ipaddr,
-      status: logininfor.status,
-      userName: logininfor.userName,
-      params: {
-        beginTime: logininfor.beginTime,
-        endTime: logininfor.endTime
-      }
-    };
+    const filter = this._buildFilter({
+      ...logininfor,
+      params: { beginTime: logininfor.beginTime, endTime: logininfor.endTime },
+    });
 
     // 查询列表
-    const logininforList = await ctx.helper.getDB(ctx).sysLogininforMapper.selectLogininforList([], conditions);
-    
-    return logininforList || [];
+    const list = await this.ctx.model.SysLogininfor.find(filter).sort({ _id: -1 }).lean();
+    return this.ctx.helper.normalizeIds(list, 'infoId');
   }
 
-  /**
-   * 删除登录日志
-   * @param {array} infoIds - 日志ID数组
-   * @return {object} 删除结果
-   */
   async deleteLogininforByIds(infoIds) {
-    const { ctx } = this;
+    const ids = infoIds.map(id => this._toObjectId(id));
     
     // 删除登录日志
-    const result = await ctx.helper.getMasterDB(ctx).sysLogininforMapper.deleteLogininforByIds([], {array:infoIds});
+    const result = await this.ctx.model.SysLogininfor.deleteMany({ _id: { $in: ids } });
     
-    return result;
+    return result.deletedCount;
   }
 
   /**
    * 清空登录日志
    */
   async cleanLogininfor() {
-    const { ctx } = this;
     
     // 清空登录日志
-    await ctx.helper.getDB(ctx).sysLogininforMapper.cleanLogininfor();
+    const result = await this.ctx.model.SysLogininfor.deleteMany({});
+    return result.deletedCount;
   }
 
   /**
@@ -104,10 +113,8 @@ class LogininforService extends Service {
    * @param {object} ctx - 上下文
    */
   async recordLoginInfo(userName, status, msg, ctx) {
-    const { app } = this;
-    
     try {
-      const logininfor = {
+      await ctx.model.SysLogininfor.create({
         userName,
         ipaddr: ctx.helper.getClientIP(ctx),
         loginLocation: '',  // 可以集成 IP 地址解析库
@@ -115,11 +122,8 @@ class LogininforService extends Service {
         os: this.getOS(ctx),
         status,
         msg,
-        loginTime: dayjs().format('YYYY-MM-DD HH:mm:ss')
-      };
-      
-      // 异步写入数据库
-      await ctx.helper.getMasterDB(ctx).sysLogininforMapper.insertLogininfor([], logininfor);
+        loginTime: new Date(),
+      });
     } catch (err) {
       ctx.logger.error('记录登录日志失败:', err);
     }

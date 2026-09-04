@@ -59,7 +59,7 @@ module.exports = app => {
         const { postId } = ctx.params;
         
         // 查询岗位信息
-        const post = await service.system.post.selectPostById(parseInt(postId));
+        const post = await service.system.post.selectPostById(postId);
         
         if (!post) {
           ctx.body = {
@@ -198,7 +198,7 @@ module.exports = app => {
         const { postIds } = ctx.params;
         
         // 解析岗位ID数组
-        const postIdArray = postIds.split(',').map(id => parseInt(id));
+        const postIdArray = postIds.split(',').filter(Boolean);
         
         // 删除岗位
         const rows = await service.system.post.deletePostByIds(postIdArray);

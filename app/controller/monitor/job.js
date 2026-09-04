@@ -79,7 +79,7 @@ module.exports = app => {
         const { jobId } = ctx.params;
         
         // 查询定时任务信息
-        const job = await service.monitor.job.selectJobById(parseInt(jobId));
+        const job = await service.monitor.job.selectJobById(jobId);
         
         if (!job) {
           ctx.body = {
@@ -213,7 +213,7 @@ module.exports = app => {
         const { jobIds } = ctx.params;
         
         // 解析任务ID数组
-        const jobIdArray = jobIds.split(',').map(id => parseInt(id));
+        const jobIdArray = jobIds.split(',').filter(Boolean);
         
         // 删除定时任务
         const rows = await service.monitor.job.deleteJobByIds(jobIdArray);

@@ -33,14 +33,14 @@ module.exports = (app) => {
 
         // 3. 生成 Token
         const tokenData = {
-          userId: user.userId,
+          userId: user._id ? user._id.toString() : user.userId,
           userName: user.userName,
-          deptId: user.deptId,
+          deptId: user.deptId ? (user.deptId._id ? user.deptId._id.toString() : user.deptId.toString()) : null,
         };
 
         const token = app.jwt.sign(tokenData, secret, {
           expiresIn,
-          jwtid: `${Date.now()}_${user.userId}`,
+          jwtid: `${Date.now()}_${tokenData.userId}`,
         });
 
         // 4. 记录登录日志
@@ -155,8 +155,8 @@ module.exports = (app) => {
           code: 200,
           msg: "查询成功",
           user: {
-            userId: user.userId,
-            deptId: user.deptId,
+            userId: user._id,
+            deptId: user.deptId ? (user.deptId._id || user.deptId) : null,
             userName: user.userName,
             nickName: user.nickName,
             email: user.email,

@@ -199,9 +199,9 @@ class DictUtils {
    */
   static async loadingDictCache(app, ctx) {
     // 查询所有正常状态的字典数据
-    const dictDataList = await ctx.helper
-      .getDB(ctx)
-      .sysDictDataMapper.selectDictDataList([], { status: '0' });
+    const dictDataList = await ctx.model.SysDictData
+      .find({ status: '0' })
+      .lean();
 
     // 按字典类型分组
     const dictDataMap = {};

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * @Description: 参数配置服务层
  * @Author: AI Assistant
  * @Date: 2025-10-23
@@ -8,14 +8,41 @@ const Service = require('egg').Service;
 const { CacheConstants } = require('../../constant');
 
 class ConfigService extends Service {
-  async selectConfigPage(params = {}) {
-    const { ctx } = this;
-    const mapper = ctx.helper.getDB(ctx).sysConfigMapper;
+  _toObjectId(id) {
+    if (!id) return id;
+    return typeof id === 'string'
+      ? new this.app.mongoose.Types.ObjectId(id)
+      : id;
+  }
 
-    return await ctx.helper.pageQuery(
-      mapper.selectConfigListMapper([], params),
-      params,
-      mapper.db()
+  _buildFilter(params) {
+    const filter = {};
+    if (params.configName) {
+      filter.configName = { $regex: params.configName, $options: 'i' };
+    }
+    if (params.configType) {
+      filter.configType = params.configType;
+    }
+    if (params.configKey) {
+      filter.configKey = { $regex: params.configKey, $options: 'i' };
+    }
+    const beginTime = (params.params && params.params.beginTime) || params.beginTime;
+    const endTime = (params.params && params.params.endTime) || params.endTime;
+    if (beginTime) {
+      filter.createTime = { ...filter.createTime, $gte: new Date(beginTime) };
+    }
+    if (endTime) {
+      filter.createTime = { ...filter.createTime, $lte: new Date(endTime) };
+    }
+    return filter;
+  }
+
+  // ==================== 分页查询 ====================
+
+  async selectConfigPage(params = {}) {
+    const filter = this._buildFilter(params);
+    return await this.ctx.helper.pageQueryMongo(
+      this.ctx.model.SysConfig, filter, params, { idField: 'configId' }
     );
   }
 
@@ -26,23 +53,12 @@ class ConfigService extends Service {
    * @return {array} 参数配置列表
    */
   async selectConfigList(config = {}) {
-    const { ctx } = this;
-    
-    // 查询条件
-    const conditions = {
-      configName: config.configName,
-      configKey: config.configKey,
-      configType: config.configType,
-      params: {
-        beginTime: config.beginTime,
-        endTime: config.endTime
-      }
-    };
-
-    // 查询列表
-    const configs = await ctx.helper.getDB(ctx).sysConfigMapper.selectConfigList([], conditions);
-    
-    return configs || [];
+    const filter = this._buildFilter({
+      ...config,
+      params: { beginTime: config.beginTime, endTime: config.endTime },
+    });
+    const list = await this.ctx.model.SysConfig.find(filter).lean();
+    return this.ctx.helper.normalizeIds(list, 'configId');
   }
 
   /**
@@ -51,9 +67,9 @@ class ConfigService extends Service {
    * @return {object} 参数配置信息
    */
   async selectConfigById(configId) {
-    const { ctx } = this;
-    
-    return await ctx.helper.getDB(ctx).sysConfigMapper.selectConfigById([], {configId});
+    const doc = await this.ctx.model.SysConfig.findById(this._toObjectId(configId)).lean();
+    if (doc && doc._id != null) doc.configId = doc._id;
+    return doc;
   }
 
   /**
@@ -62,32 +78,21 @@ class ConfigService extends Service {
    * @return {string} 参数键值
    */
   async selectConfigByKey(configKey) {
-    const { ctx, app } = this;
+    const { app } = this;
     
     // 先从缓存中获取
     const cacheKey = CacheConstants.SYS_CONFIG_KEY + configKey;
     let configValue = await app.cache.default.get(cacheKey);
-    
-    if (configValue) {
-      return configValue;
+
+    if (configValue) return configValue;
+
+    const config = await this.ctx.model.SysConfig.findOne({ configKey }).lean();
+
+    if (config) {
+      await app.cache.default.set(cacheKey, config.configValue, 0);
+      return config.configValue;
     }
-    
-    // 从数据库查询
-    const conditions = {
-      configKey
-    };
-    
-    const configs = await ctx.helper.getDB(ctx).sysConfigMapper.selectConfig([], conditions);
-    
-    if (configs) {
-      configValue = configs.configValue;
-      
-      // 存入缓存（不过期）
-      await app.cache.default.set(cacheKey, configValue, 0);
-      
-      return configValue;
-    }
-    
+
     return '';
   }
 
@@ -97,17 +102,12 @@ class ConfigService extends Service {
    * @return {boolean} true-唯一 false-不唯一
    */
   async checkConfigKeyUnique(config) {
-    const { ctx } = this;
-    
-    const configId = config.configId || -1;
-    const configs = await ctx.helper.getDB(ctx).sysConfigMapper.checkConfigKeyUnique([], {configKey: config.configKey});
-    
-    if (configs && configs.length > 0 && configs[0].configId !== configId) {
-      return false;
-    }
-    
-    return true;
+    const existing = await this.ctx.model.SysConfig.findOne({ configKey: config.configKey }).lean();
+    if (!existing) return true;
+    const configId = config.configId || config._id;
+    return !configId || existing._id.toString() === configId.toString();
   }
+
 
   /**
    * 新增参数配置
@@ -119,19 +119,22 @@ class ConfigService extends Service {
     
     // 设置创建信息
     config.createBy = ctx.state.user.userName;
-    
-    // 插入参数配置
-    const result = await ctx.helper.getMasterDB(ctx).sysConfigMapper.insertConfig([], config);
-    
-    // 更新缓存
-    if (result > 0) {
-      const cacheKey = CacheConstants.SYS_CONFIG_KEY + config.configKey;
-      await app.cache.default.set(cacheKey, config.configValue, 0);
-      return 1;
-    }
-    
-    return 0;
+
+    const doc = { createTime: new Date() };
+    if (config.configName) doc.configName = config.configName;
+    if (config.configKey) doc.configKey = config.configKey;
+    if (config.configValue) doc.configValue = config.configValue;
+    if (config.configType) doc.configType = config.configType;
+    if (config.createBy) doc.createBy = config.createBy;
+    if (config.remark) doc.remark = config.remark;
+
+    await this.ctx.model.SysConfig.create(doc);
+
+    const cacheKey = CacheConstants.SYS_CONFIG_KEY + config.configKey;
+    await app.cache.default.set(cacheKey, config.configValue, 0);
+    return 1;
   }
+
 
   /**
    * 修改参数配置
@@ -146,25 +149,29 @@ class ConfigService extends Service {
     
     // 设置更新信息
     config.updateBy = ctx.state.user.userName;
-    
-    // 更新参数配置
-    const result = await ctx.helper.getMasterDB(ctx).sysConfigMapper.updateConfig([], config);
-    
-    // 更新缓存
-    if (result > 0) {
-      // 如果键名改变，删除旧的缓存
+
+    const setFields = { updateTime: new Date() };
+    if (config.configName) setFields.configName = config.configName;
+    if (config.configKey) setFields.configKey = config.configKey;
+    if (config.configValue) setFields.configValue = config.configValue;
+    if (config.configType) setFields.configType = config.configType;
+    if (config.updateBy) setFields.updateBy = config.updateBy;
+    if (config.remark !== undefined) setFields.remark = config.remark;
+
+    const result = await this.ctx.model.SysConfig.updateOne(
+      { _id: this._toObjectId(config.configId) },
+      { $set: setFields }
+    );
+
+    if (result.modifiedCount > 0 || result.matchedCount > 0) {
       if (oldConfig && oldConfig.configKey !== config.configKey) {
-        const oldCacheKey = CacheConstants.SYS_CONFIG_KEY + oldConfig.configKey;
-        await app.cache.default.del(oldCacheKey);
+        await app.cache.default.del(CacheConstants.SYS_CONFIG_KEY + oldConfig.configKey);
       }
-      
-      // 更新新的缓存
-      const cacheKey = CacheConstants.SYS_CONFIG_KEY + config.configKey;
-      await app.cache.default.set(cacheKey, config.configValue, 0);
-      
+      await app.cache.default.set(
+        CacheConstants.SYS_CONFIG_KEY + config.configKey, config.configValue, 0
+      );
       return 1;
     }
-    
     return 0;
   }
 
@@ -174,10 +181,9 @@ class ConfigService extends Service {
    * @return {number} 影响行数
    */
   async deleteConfigByIds(configIds) {
-    const { ctx, app } = this;
-    
+    const { app } = this;
     let deletedCount = 0;
-    
+
     for (const configId of configIds) {
       // 查询参数配置
       const config = await this.selectConfigById(configId);
@@ -192,15 +198,13 @@ class ConfigService extends Service {
       }
       
       // 删除参数配置
-      await ctx.helper.getMasterDB(ctx).sysConfigMapper.deleteConfigById([], {configId});
+      await this.ctx.model.SysConfig.deleteOne({ _id: this._toObjectId(configId) });
       
       // 删除缓存
-      const cacheKey = CacheConstants.SYS_CONFIG_KEY + config.configKey;
-      await app.cache.default.del(cacheKey);
-      
+      await app.cache.default.del(CacheConstants.SYS_CONFIG_KEY + config.configKey);
       deletedCount++;
     }
-    
+
     return deletedCount;
   }
 
@@ -215,10 +219,10 @@ class ConfigService extends Service {
     
     // 存入缓存
     for (const config of configs) {
-      const cacheKey = CacheConstants.SYS_CONFIG_KEY + config.configKey;
-      await app.cache.default.set(cacheKey, config.configValue, 0);
+      await app.cache.default.set(
+        CacheConstants.SYS_CONFIG_KEY + config.configKey, config.configValue, 0
+      );
     }
-    
     ctx.logger.info('参数配置缓存加载完成');
   }
 
