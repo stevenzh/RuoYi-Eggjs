@@ -1,5 +1,5 @@
 /*
- * @Description: ${functionName}服务层（使用 egg-mysql 原生方式）
+ * @Description: ${functionName}服务层
  * @Author: ${author}
  * @Date: ${datetime}
  */
@@ -23,6 +23,8 @@ class ${ClassName}Service extends Service {
 
   /**
    * 查询${functionName}列表（分页）
+   * @param {object} params - 查询参数
+   * @return {object} 查询结果
    */
   async select${ClassName}List(params = {}) {
     const db = this._getDb();
@@ -33,6 +35,8 @@ class ${ClassName}Service extends Service {
 
   /**
    * 查询${functionName}详情
+   * @param {${pkColumn.javaType}} ${pkColumn.javaField} - ${pkColumn.columnComment}
+   * @return {object} ${functionName}信息
    */
   async select${ClassName}By${pkColumn.capJavaField}(${pkColumn.javaField}) {
     const db = this._getDb();
@@ -42,6 +46,8 @@ class ${ClassName}Service extends Service {
 
   /**
    * 新增${functionName}
+   * @param {object} data - ${functionName}信息
+   * @return {object} 新增结果
    */
   async insert${ClassName}(data) {
     const db = this._getDb();
@@ -56,6 +62,8 @@ class ${ClassName}Service extends Service {
 
   /**
    * 修改${functionName}
+   * @param {object} data - ${functionName}信息
+   * @return {object} 修改结果
    */
   async update${ClassName}(data) {
     const db = this._getDb();
@@ -69,6 +77,8 @@ class ${ClassName}Service extends Service {
 
   /**
    * 删除${functionName}
+   * @param {array} ${pkColumn.javaField}s - ${pkColumn.columnComment}数组
+   * @return {object} 删除结果
    */
   async delete${ClassName}By${pkColumn.capJavaField}s(${pkColumn.javaField}s) {
     const db = this._getDb();

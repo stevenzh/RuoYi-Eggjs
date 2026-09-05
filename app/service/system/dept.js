@@ -27,8 +27,6 @@ class DeptService extends Service {
     return { ...doc, deptId: doc._id };
   }
 
-  // ==================== 查询条件构建 ====================
-
   /**
    * 构建部门查询条件
    * 对应原 _buildDeptListSql
@@ -57,8 +55,6 @@ class DeptService extends Service {
     return filter;
   }
 
-  // ==================== 查询列表 ====================
-
   /**
    * 查询部门列表
    * 对应 SysDeptMapper.xml 中 selectDeptList
@@ -67,7 +63,6 @@ class DeptService extends Service {
    */
   @DataScope({ deptAlias: "d" })
   async selectDeptList(dept = {}) {
-    // 组装查询条件（与 MyBatis XML 中 selectDeptList 完全一致）
     const params = {
       deptId: dept.deptId,
       parentId: dept.parentId,
@@ -93,75 +88,6 @@ class DeptService extends Service {
     return (depts || []).map((d) => this._normalizeDept(d));
   }
 
-  // ==================== 按角色查询部门 ====================
-
-  /**
-   * 根据角色ID查询部门ID列表
-   * 对应 SysDeptMapper.xml 中 selectDeptListByRoleId
-   */
-  async selectDeptListByRoleId(roleId) {
-    const { ctx } = this;
-
-    // 查询角色信息
-    const role = await ctx.service.system.role.selectRoleById(roleId);
-    const deptCheckStrictly = role && role.deptCheckStrictly;
-
-    // 查询角色关联的部门
-    const roleDepts = await this.model.SysRoleDept
-      .find({ roleId: this._toObjectId(roleId) })
-      .select("deptId")
-      .lean();
-
-    let deptIds = roleDepts.map((rd) => rd.deptId);
-
-    if (deptCheckStrictly && deptIds.length > 0) {
-      // 排除父子关联：如果某个部门的 parentId 也在 deptIds 中，则排除该父部门
-      const parentDepts = await this.model.SysDept
-        .find({
-          _id: { $in: deptIds },
-          parentId: { $in: deptIds },
-        })
-        .select("parentId")
-        .lean();
-
-      const parentIdSet = new Set(
-        parentDepts.map((d) => d.parentId.toString())
-      );
-      deptIds = deptIds.filter((id) => !parentIdSet.has(id.toString()));
-    }
-
-    if (deptIds.length === 0) return [];
-
-    const depts = await this.model.SysDept
-      .find({ _id: { $in: deptIds }, delFlag: "0" })
-      .select("_id")
-      .sort({ parentId: 1, orderNum: 1 })
-      .lean();
-
-    return depts.map((d) => ({ deptId: d._id, ...d }));
-  }
-
-  // ==================== 按 ID 查询 ====================
-
-  /**
-   * 根据部门ID查询部门
-   * 对应 SysDeptMapper.xml 中 selectDeptById（含父部门名称子查询）
-   */
-  async selectDeptById(deptId) {
-    const _id = this._toObjectId(deptId);
-    const dept = await this.model.SysDept.findById(_id)
-      .populate("parentId", "deptName")
-      .lean();
-
-    if (!dept) return null;
-
-    return this._normalizeDept({
-      ...dept,
-      parentName: dept.parentId ? dept.parentId.deptName : null,
-    });
-  }
-
-  // ==================== 按名称查询 ====================
 
   /**
    * 根据部门名称查询部门
@@ -183,72 +109,10 @@ class DeptService extends Service {
     return null;
   }
 
-  // ==================== 唯一性校验 ====================
-
-  /**
-   * 校验部门名称是否唯一
-   * 对应 SysDeptMapper.xml 中 checkDeptNameUnique
-   */
-  async checkDeptNameUnique(dept) {
-    const existing = await this.model.SysDept.findOne({
-      deptName: dept.deptName,
-      parentId: this._toObjectId(dept.parentId),
-      delFlag: "0",
-    }).lean();
-
-    if (existing) {
-      const deptId = dept.deptId || dept._id;
-      if (!deptId || existing._id.toString() !== String(deptId)) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  // ==================== 子部门 / 用户检查 ====================
-
-  /**
-   * 是否存在子部门
-   * 对应 SysDeptMapper.xml 中 hasChildByDeptId
-   */
-  async hasChildByDeptId(deptId) {
-    const count = await this.model.SysDept.countDocuments({
-      parentId: this._toObjectId(deptId),
-      delFlag: "0",
-    });
-    return count > 0;
-  }
-
-  /**
-   * 检查部门是否存在用户
-   * 对应 SysDeptMapper.xml 中 checkDeptExistUser
-   */
-  async checkDeptExistUser(deptId) {
-    const count = await this.model.SysUser.countDocuments({
-      deptId: this._toObjectId(deptId),
-      delFlag: "0",
-    });
-    return count > 0;
-  }
-
-  /**
-   * 查询正常状态的子部门数量
-   * 对应 SysDeptMapper.xml 中 selectNormalChildrenDeptById
-   */
-  async selectNormalChildrenDeptById(deptId) {
-    const count = await this.model.SysDept.countDocuments({
-      status: "0",
-      delFlag: "0",
-      ancestors: deptId,
-    });
-    return count;
-  }
-
-  // ==================== 树形构建 ====================
-
   /**
    * 查询部门树结构
+   * @param {object} dept - 查询参数
+   * @return {array} 部门树
    */
   async selectDeptTreeList(dept = {}) {
     const list = await this.selectDeptList(dept);
@@ -257,6 +121,8 @@ class DeptService extends Service {
 
   /**
    * 构建部门树
+   * @param {array} depts - 部门列表
+   * @return {array} 部门树
    */
   buildDeptTree(depts) {
     const deptIds = depts.map((d) => String(d.deptId));
@@ -272,11 +138,16 @@ class DeptService extends Service {
 
   /**
    * 递归查找子部门
+   * @param {array} depts - 部门列表
+   * @param {object} dept - 当前部门
    */
   recursionFn(depts, dept) {
+    // 得到子节点列表
     const childList = this.getChildList(depts, dept);
     dept.children = childList;
+
     for (const child of childList) {
+      // 判断是否有子节点
       if (this.hasChild(depts, child)) {
         this.recursionFn(depts, child);
       }
@@ -336,11 +207,163 @@ class DeptService extends Service {
     return treeSelect;
   }
 
-  // ==================== 新增 ====================
+  /**
+   * 根据部门ID查询部门
+   * @param {number} deptId - 部门ID
+   * @return {object} 部门信息
+   */
+  async selectDeptById(deptId) {
+    const _id = this._toObjectId(deptId);
+    const dept = await this.model.SysDept.findById(_id)
+      .populate("parentId", "deptName")
+      .lean();
+
+    if (!dept) return null;
+
+    return this._normalizeDept({
+      ...dept,
+      parentName: dept.parentId ? dept.parentId.deptName : null,
+    });
+  }
+
+
+  /**
+   * 根据角色ID查询部门ID列表
+   * @param {number} roleId - 角色ID
+   * @return {array} 部门ID列表
+   */
+  async selectDeptListByRoleId(roleId) {
+    const { ctx } = this;
+
+    // 查询角色信息
+    const role = await ctx.service.system.role.selectRoleById(roleId);
+    const deptCheckStrictly = role && role.deptCheckStrictly;
+
+    // 查询角色关联的部门
+    const roleDepts = await this.model.SysRoleDept
+      .find({ roleId: this._toObjectId(roleId) })
+      .select("deptId")
+      .lean();
+
+    let deptIds = roleDepts.map((rd) => rd.deptId);
+
+    if (deptCheckStrictly && deptIds.length > 0) {
+      // 排除父子关联：如果某个部门的 parentId 也在 deptIds 中，则排除该父部门
+      const parentDepts = await this.model.SysDept
+        .find({
+          _id: { $in: deptIds },
+          parentId: { $in: deptIds },
+        })
+        .select("parentId")
+        .lean();
+
+      const parentIdSet = new Set(
+        parentDepts.map((d) => d.parentId.toString())
+      );
+      deptIds = deptIds.filter((id) => !parentIdSet.has(id.toString()));
+    }
+
+    if (deptIds.length === 0) return [];
+
+    const depts = await this.model.SysDept
+      .find({ _id: { $in: deptIds }, delFlag: "0" })
+      .select("_id")
+      .sort({ parentId: 1, orderNum: 1 })
+      .lean();
+
+    return depts.map((d) => ({ deptId: d._id, ...d }));
+  }
+
+  /**
+   * 校验部门名称是否唯一
+   * @param {object} dept - 部门对象
+   * @return {boolean} true-唯一 false-不唯一
+   */
+  async checkDeptNameUnique(dept) {
+    const existing = await this.model.SysDept.findOne({
+      deptName: dept.deptName,
+      parentId: this._toObjectId(dept.parentId),
+      delFlag: "0",
+    }).lean();
+
+    if (existing) {
+      const deptId = dept.deptId || dept._id;
+      if (!deptId || existing._id.toString() !== String(deptId)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * 是否存在子部门
+   * @param {number} deptId - 部门ID
+   * @return {boolean} true-存在 false-不存在
+   */
+  async hasChildByDeptId(deptId) {
+    const count = await this.model.SysDept.countDocuments({
+      parentId: this._toObjectId(deptId),
+      delFlag: "0",
+    });
+    return count > 0;
+  }
+
+    /**
+   * 检查部门是否存在用户
+   * @param {number} deptId - 部门ID
+   * @return {boolean} true-存在 false-不存在
+   */
+  async checkDeptExistUser(deptId) {
+    const count = await this.model.SysUser.countDocuments({
+      deptId: this._toObjectId(deptId),
+      delFlag: "0",
+    });
+    return count > 0;
+  }
+
+  /**
+   * 查询正常状态的子部门数量
+   * @param {number} deptId - 部门ID
+   * @return {number} 子部门数量
+   */
+  async selectNormalChildrenDeptById(deptId) {
+    const count = await this.model.SysDept.countDocuments({
+      status: "0",
+      delFlag: "0",
+      ancestors: deptId,
+    });
+    return count;
+  }
+
+  /**
+   * 校验部门数据权限
+   * @param {number} deptId - 部门ID
+   */
+  async checkDeptDataScope(deptId) {
+    const { ctx } = this;
+
+    if (!deptId) {
+      return;
+    }
+
+    // 管理员拥有所有数据权限（isAdmin 现在接受 user 对象）
+    if (ctx.helper.isAdmin(ctx.state.user)) {
+      return;
+    }
+
+    // 使用带数据权限的查询来验证当前用户是否有权限访问该部门
+    const depts = await this.selectDeptList({ deptId });
+
+    if (!depts || depts.length === 0) {
+      throw new Error("没有权限访问部门数据！");
+    }
+  }
 
   /**
    * 新增部门
-   * 对应 SysDeptMapper.xml 中 insertDept（动态字段）
+   * @param {object} dept - 部门对象
+   * @return {number} 影响行数
    */
   async insertDept(dept) {
     const { ctx } = this;
@@ -383,11 +406,10 @@ class DeptService extends Service {
     return 1;
   }
 
-  // ==================== 修改 ====================
-
   /**
    * 修改部门
-   * 对应 SysDeptMapper.xml 中 updateDept（动态 SET）
+   * @param {object} dept - 部门对象
+   * @return {number} 影响行数
    */
   async updateDept(dept) {
     const { ctx } = this;
@@ -455,7 +477,9 @@ class DeptService extends Service {
 
   /**
    * 更新子部门的祖级列表
-   * 对应 XML: selectChildrenDeptById + updateDeptChildren（CASE WHEN 批量更新）
+   * @param {number} deptId - 部门ID
+   * @param {string} newAncestors - 新祖级列表
+   * @param {string} oldAncestors - 旧祖级列表
    */
   async updateDeptChildren(deptId, newAncestors, oldAncestors) {
     // 查询所有子部门（ancestors 包含该 deptId 的部门）
@@ -489,7 +513,7 @@ class DeptService extends Service {
 
   /**
    * 更新上级部门状态为正常
-   * 对应 XML: updateDeptStatusNormal（IN 批量更新）
+   * @param {object} dept - 部门对象
    */
   async updateParentDeptStatusNormal(dept) {
     // 获取所有上级部门ID（ancestors 已是数组，过滤掉 0）
@@ -505,11 +529,10 @@ class DeptService extends Service {
     );
   }
 
-  // ==================== 删除 ====================
-
   /**
-   * 删除部门（软删除）
-   * 对应 SysDeptMapper.xml 中 deleteDeptById
+   * 删除部门
+   * @param {number} deptId - 部门ID
+   * @return {number} 影响行数
    */
   async deleteDeptById(deptId) {
     const _id = this._toObjectId(deptId);
@@ -520,30 +543,6 @@ class DeptService extends Service {
     return result.modifiedCount;
   }
 
-  // ==================== 权限校验 ====================
-
-  /**
-   * 校验部门数据权限
-   */
-  async checkDeptDataScope(deptId) {
-    const { ctx } = this;
-
-    if (!deptId) {
-      return;
-    }
-
-    // 管理员拥有所有数据权限（isAdmin 现在接受 user 对象）
-    if (ctx.helper.isAdmin(ctx.state.user)) {
-      return;
-    }
-
-    // 使用带数据权限的查询来验证当前用户是否有权限访问该部门
-    const depts = await this.selectDeptList({ deptId });
-
-    if (!depts || depts.length === 0) {
-      throw new Error("没有权限访问部门数据！");
-    }
-  }
 }
 
 module.exports = DeptService;

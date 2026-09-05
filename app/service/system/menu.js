@@ -75,8 +75,6 @@ class MenuService extends Service {
     return filter;
   }
 
-  // ==================== 查询菜单列表 ====================
-
   /**
    * 查询菜单列表
    * @param {object} menu - 查询参数

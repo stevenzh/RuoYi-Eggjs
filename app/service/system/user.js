@@ -13,8 +13,6 @@ class UserService extends Service {
     return this.ctx.model;
   }
 
-  // ==================== 数据规范化 ====================
-
   /**
    * 将 Mongoose 文档的 _id 映射为 userId，保持与前端兼容
    */
@@ -31,8 +29,6 @@ class UserService extends Service {
     if (!users || !Array.isArray(users)) return users;
     return users.map(u => this._normalizeUser(u));
   }
-
-  // ==================== 查询辅助 ====================
 
   /**
    * 构建用户查询条件（对应原 _buildSelectUserListSql）
@@ -84,10 +80,10 @@ class UserService extends Service {
     return filter;
   }
 
-  // ==================== 分页查询 ====================
-
   /**
    * 查询用户列表（分页，带数据权限过滤）
+   * @param {object} params - 查询参数
+   * @return {object} 分页结果（包含部门信息）
    */
   @DataScope({ deptAlias: "d", userAlias: "u" })
   async selectUserPage(params = {}) {
@@ -120,10 +116,12 @@ class UserService extends Service {
     return result;
   }
 
-  // ==================== 查询列表 ====================
+  
 
   /**
    * 查询用户列表（带数据权限过滤）
+   * @param {object} params - 查询参数
+   * @return {array} 用户列表
    */
   @DataScope({ deptAlias: "d", userAlias: "u" })
   async selectUserList(params = {}) {
@@ -145,6 +143,8 @@ class UserService extends Service {
 
   /**
    * 根据用户ID查询用户（包含部门和角色信息）
+   * @param {number} userId - 用户ID
+   * @return {object} 用户信息（包含 dept、roles 和 roleIds）
    */
   async selectUserById(userId) {
     const _id = typeof userId === 'string'
@@ -163,6 +163,8 @@ class UserService extends Service {
 
   /**
    * 根据用户名查询角色列表
+   * @param {string} userName - 用户名
+   * @return {object} { roles: 角色列表, roleIds: 角色ID列表 }
    */
   async selectRolesByUserName(userName) {
     if (!userName) {
@@ -182,7 +184,9 @@ class UserService extends Service {
   }
 
   /**
-   * 查询用户详情（包含部门和角色）
+   * 根据用户对象查询用户详情（包含部门和角色列表）
+   * @param {object} user - 用户对象（必须包含 userName 和 deptId）
+   * @return {object} 用户详情（包含 dept、roles 和 roleIds 字段）
    */
   async selectUserWithDeptAndRoles(user) {
     if (!user || !user.userName) return null;
@@ -198,7 +202,9 @@ class UserService extends Service {
   }
 
   /**
-   * 根据用户名查询用户
+   * 根据用户名查询用�?
+   * @param {string} userName - 用户�?
+   * @return {object} 用户信息
    */
   async selectUserByUserName(userName) {
     const user = await this.model.SysUser
@@ -208,8 +214,11 @@ class UserService extends Service {
     return this._normalizeUser(user);
   }
 
-  // ==================== 唯一性校验 ====================
-
+  /**
+   * 校验用户名是否唯一
+   * @param {object} user - 用户对象
+   * @return {boolean} true-唯一 false-不唯一
+   */
   async checkUserNameUnique(user) {
     const existing = await this.model.SysUser.findOne({
       userName: user.userName,
@@ -219,6 +228,11 @@ class UserService extends Service {
     return !existing || existing._id.toString() === (user.userId || user._id);
   }
 
+  /**
+   * 校验手机号是否唯一
+   * @param {object} user - 用户对象
+   * @return {boolean} true-唯一 false-不唯一
+   */
   async checkPhoneUnique(user) {
     const existing = await this.model.SysUser.findOne({
       phonenumber: user.phonenumber,
@@ -228,6 +242,11 @@ class UserService extends Service {
     return !existing || existing._id.toString() === (user.userId || user._id);
   }
 
+  /**
+   * 校验邮箱是否唯一
+   * @param {object} user - 用户对象
+   * @return {boolean} true-唯一 false-不唯一
+   */
   async checkEmailUnique(user) {
     const existing = await this.model.SysUser.findOne({
       email: user.email,
@@ -236,8 +255,6 @@ class UserService extends Service {
 
     return !existing || existing._id.toString() === (user.userId || user._id);
   }
-
-  // ==================== 部门查询 ====================
 
   async selectDeptByDeptId(deptId) {
     if (!deptId) return null;
@@ -260,24 +277,31 @@ class UserService extends Service {
     return [deptId, ...children.map(d => d._id)];
   }
 
-  // ==================== 校验 ====================
-
   checkUserAllowed(user) {
     if (user && this.ctx.helper.isAdmin(user._id ? user.userName : user)) {
       throw new Error("不允许操作超级管理员用户");
     }
   }
 
+  /**
+   * 校验用户是否有数据权�?
+   * @param {number} userId - 用户ID
+   */
   async checkUserDataScope(userId) {
     const { ctx } = this;
     if (ctx.helper.isAdmin(ctx.state.user)) return;
     // TODO: 实现数据权限校验
   }
 
-  // ==================== 新增 ====================
-
+  /**
+   * 新增用户
+   * @param {object} user - 用户对象
+   * @return {number} 影响行数
+   */
   async insertUser(user) {
     const { ctx } = this;
+
+    // 设置创建信息
     user.createBy = ctx.state.user.userName;
 
     const doc = {
@@ -313,8 +337,11 @@ class UserService extends Service {
     return 1;
   }
 
-  // ==================== 修改 ====================
-
+  /**
+   * 修改用户
+   * @param {object} user - 用户对象
+   * @return {number} 影响行数
+   */
   async updateUser(user) {
     const { ctx } = this;
     user.updateBy = ctx.state.user.userName;
@@ -356,6 +383,11 @@ class UserService extends Service {
     return result.modifiedCount;
   }
 
+  /**
+   * 修改用户状�?
+   * @param {object} user - 用户对象
+   * @return {number} 影响行数
+   */
   async updateUserStatus(user) {
     const _id = this._toObjectId(user.userId || user._id);
     const result = await this.model.SysUser.updateOne(
@@ -365,6 +397,11 @@ class UserService extends Service {
     return result.modifiedCount;
   }
 
+  /**
+   * 重置用户密码
+   * @param {object} user - 用户对象
+   * @return {number} 影响行数
+   */
   async resetPwd(user) {
     const _id = this._toObjectId(user.userId || user._id);
     const result = await this.model.SysUser.updateOne(
@@ -374,8 +411,11 @@ class UserService extends Service {
     return result.modifiedCount;
   }
 
-  // ==================== 删除 ====================
-
+  /**
+   * 删除用户
+   * @param {array} userIds - 用户ID数组
+   * @return {number} 影响行数
+   */
   async deleteUserByIds(userIds) {
     const ids = userIds.map(id => this._toObjectId(id));
 
@@ -391,14 +431,22 @@ class UserService extends Service {
     return result.modifiedCount;
   }
 
-  // ==================== 授权管理 ====================
-
+  /**
+   * 用户授权角色
+   * @param {number} userId - 用户ID
+   * @param {array} roleIds - 角色ID数组
+   */
   async insertUserAuth(userId, roleIds) {
     const _id = this._toObjectId(userId);
     await this.model.SysUserRole.deleteMany({ userId: _id });
     await this.insertUserRole(_id, roleIds);
   }
 
+  /**
+   * 插入用户与角色关�?
+   * @param {number} userId - 用户ID
+   * @param {array} roleIds - 角色ID数组
+   */
   async insertUserRole(userId, roleIds) {
     if (!roleIds || roleIds.length === 0) return;
     const docs = roleIds.map(roleId => ({
@@ -408,6 +456,11 @@ class UserService extends Service {
     await this.model.SysUserRole.insertMany(docs);
   }
 
+  /**
+   * 插入用户与岗位关�?
+   * @param {number} userId - 用户ID
+   * @param {array} postIds - 岗位ID数组
+   */
   async insertUserPost(userId, postIds) {
     if (!postIds || postIds.length === 0) return;
     const docs = postIds.map(postId => ({
@@ -417,8 +470,13 @@ class UserService extends Service {
     await this.model.SysUserPost.insertMany(docs);
   }
 
-  // ==================== 导入 ====================
-
+  /**
+   * 导入用户数据
+   * @param {array} userList - 用户列表
+   * @param {boolean} updateSupport - 是否更新已存在的用户
+   * @param {string} operName - 操作�?
+   * @return {string} 导入结果信息
+   */
   async importUser(userList, updateSupport = false, operName) {
     const { ctx } = this;
 
@@ -432,14 +490,19 @@ class UserService extends Service {
 
     for (const user of userList) {
       try {
+        
+        // 根据部门名称查询部门ID
         if (user.deptName) {
           const dept = await ctx.service.system.dept.selectDeptByName(user.deptName);
           if (dept) user.deptId = dept._id;
         }
 
+        
+        // 校验用户名是否存�?
         const existUser = await this.selectUserByUserName(user.userName);
 
         if (!existUser) {
+          // 新增用户
           user.password = await ctx.helper.security.encryptPassword(
             user.password || "123456"
           );
@@ -447,6 +510,7 @@ class UserService extends Service {
           await this.insertUser(user);
           successNum++;
         } else if (updateSupport) {
+          // 更新用户
           user.userId = existUser._id;
           user.updateBy = operName;
           await this.updateUserProfile(user);
@@ -467,8 +531,11 @@ class UserService extends Service {
     return `导入成功 ${successNum} 条`;
   }
 
-  // ==================== 个人中心 ====================
-
+  /**
+   * 修改用户个人信息
+   * @param {object} user - 用户对象
+   * @return {number} 影响行数
+   */
   async updateUserProfile(user) {
     const { ctx } = this;
     user.updateBy = ctx.state.user.userName;
@@ -493,6 +560,12 @@ class UserService extends Service {
     return result.modifiedCount;
   }
 
+  /**
+   * 修改用户密码
+   * @param {number} userId - 用户ID
+   * @param {string} password - 新密码（已加密）
+   * @return {number} 影响行数
+   */
   async resetUserPwd(userId, password) {
     const _id = this._toObjectId(userId);
     const result = await this.model.SysUser.updateOne(
@@ -502,6 +575,12 @@ class UserService extends Service {
     return result.modifiedCount;
   }
 
+  /**
+   * 修改用户头像
+   * @param {number} userId - 用户ID
+   * @param {string} avatar - 头像地址
+   * @return {boolean} 是否成功
+   */
   async updateUserAvatar(userId, avatar) {
     const _id = this._toObjectId(userId);
     const result = await this.model.SysUser.updateOne(
@@ -511,11 +590,21 @@ class UserService extends Service {
     return result.modifiedCount > 0;
   }
 
+  /**
+   * 查询用户角色组
+   * @param {string} userName - 用户名
+   * @return {string} 角色组
+   */
   async selectUserRoleGroup(userName) {
     const { roles } = await this.selectRolesByUserName(userName);
     return roles.map(r => r.roleName).join(',');
   }
 
+  /**
+   * 查询用户岗位组
+   * @param {string} userName - 用户名
+   * @return {string} 岗位组
+   */
   async selectUserPostGroup(userName) {
     const user = await this.model.SysUser.findOne({ userName, delFlag: '0' }).lean();
     if (!user) return '';
@@ -528,13 +617,21 @@ class UserService extends Service {
     return posts.map(p => p.postName).join(',');
   }
 
-  // ==================== 角色分配用户查询 ====================
-
+  /**
+   * 查询已分配用户角色列表
+   * @param {object} params - 查询参数
+   * @return {object} 分页结果
+   */
   @DataScope({ deptAlias: "d", userAlias: "u" })
   async selectAllocatedList(params) {
     return await this._selectUserByRoleFilter(params, true);
   }
 
+  /**
+   * 查询未分配用户角色列表
+   * @param {object} params - 查询参数
+   * @return {array} 用户列表
+   */
   @DataScope({ deptAlias: "d", userAlias: "u" })
   async selectUnallocatedList(params) {
     return await this._selectUserByRoleFilter(params, false);
@@ -569,8 +666,6 @@ class UserService extends Service {
     );
     return result;
   }
-
-  // ==================== 工具 ====================
 
   _toObjectId(id) {
     if (!id) return id;

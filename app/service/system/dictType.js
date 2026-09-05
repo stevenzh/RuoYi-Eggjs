@@ -35,8 +35,6 @@ class DictTypeService extends Service {
     return filter;
   }
 
-  // ==================== 分页查询 ====================
-
   async selectDictTypePage(params = {}) {
     const filter = this._buildFilter(params);
     return await this.ctx.helper.pageQueryMongo(
@@ -44,8 +42,12 @@ class DictTypeService extends Service {
     );
   }
 
-  // ==================== 查询列表 ====================
 
+  /**
+   * 查询字典类型列表
+   * @param {object} dictType - 查询参数
+   * @return {array} 字典类型列表
+   */
   async selectDictTypeList(dictType = {}) {
     const filter = this._buildFilter({
       ...dictType,
@@ -55,27 +57,42 @@ class DictTypeService extends Service {
     return this.ctx.helper.normalizeIds(list, 'dictId');
   }
 
+  /**
+   * 查询所有字典类型
+   * @return {array} 字典类型列表
+   */
   async selectDictTypeAll() {
     const list = await this.ctx.model.SysDictType.find().lean();
     return this.ctx.helper.normalizeIds(list, 'dictId');
   }
 
-  // ==================== 按 ID 查询 ====================
-
+  /**
+   * 根据字典ID查询字典类型
+   * @param {number} dictId - 字典ID
+   * @return {object} 字典类型信息
+   */
   async selectDictTypeById(dictId) {
     const doc = await this.ctx.model.SysDictType.findById(this._toObjectId(dictId)).lean();
     if (doc && doc._id != null) doc.dictId = doc._id;
     return doc;
   }
 
+  /**
+   * 根据字典类型查询字典类型
+   * @param {string} dictType - 字典类型
+   * @return {object} 字典类型信息
+   */
   async selectDictTypeByType(dictType) {
     const doc = await this.ctx.model.SysDictType.findOne({ dictType }).lean();
     if (doc && doc._id != null) doc.dictId = doc._id;
     return doc;
   }
 
-  // ==================== 唯一性校验 ====================
-
+  /**
+   * 校验字典类型是否唯一
+   * @param {object} dictType - 字典类型对象
+   * @return {boolean} true-唯一 false-不唯一
+   */
   async checkDictTypeUnique(dictType) {
     const existing = await this.ctx.model.SysDictType.findOne({ dictType: dictType.dictType }).lean();
     if (!existing) return true;
@@ -83,10 +100,16 @@ class DictTypeService extends Service {
     return !dictId || existing._id.toString() === dictId.toString();
   }
 
-  // ==================== 新增 ====================
 
+  /**
+   * 新增字典类型
+   * @param {object} dictType - 字典类型对象
+   * @return {number} 影响行数
+   */
   async insertDictType(dictType) {
     const { ctx, app } = this;
+    
+    // 设置创建信息
     dictType.createBy = ctx.state.user.userName;
 
     const doc = { createTime: new Date() };
@@ -101,11 +124,19 @@ class DictTypeService extends Service {
     return 1;
   }
 
-  // ==================== 修改 ====================
 
+  /**
+   * 修改字典类型
+   * @param {object} dictType - 字典类型对象
+   * @return {number} 影响行数
+   */
   async updateDictType(dictType) {
     const { ctx, app } = this;
+    
+    // 查询旧的字典类型
     const oldDict = await this.selectDictTypeById(dictType.dictId);
+    
+    // 设置更新信息
     dictType.updateBy = ctx.state.user.userName;
 
     const setFields = { updateTime: new Date() };
@@ -139,8 +170,11 @@ class DictTypeService extends Service {
     return 0;
   }
 
-  // ==================== 删除 ====================
-
+  /**
+   * 删除字典类型
+   * @param {array} dictIds - 字典ID数组
+   * @return {number} 影响行数
+   */
   async deleteDictTypeByIds(dictIds) {
     const { app } = this;
     let deletedCount = 0;
@@ -162,18 +196,25 @@ class DictTypeService extends Service {
     return deletedCount;
   }
 
-  // ==================== 缓存管理 ====================
-
+  /**
+   * 加载字典缓存
+   */
   async loadingDictCache() {
     const { ctx, app } = this;
     await DictUtils.loadingDictCache(app, ctx);
   }
 
+  /**
+   * 清空字典缓存
+   */
   async clearDictCache() {
     const { app } = this;
     await DictUtils.clearDictCache(app);
   }
 
+  /**
+   * 重置字典缓存
+   */
   async resetDictCache() {
     const { ctx, app } = this;
     await DictUtils.resetDictCache(app, ctx);
@@ -181,3 +222,5 @@ class DictTypeService extends Service {
 }
 
 module.exports = DictTypeService;
+
+

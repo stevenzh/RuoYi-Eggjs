@@ -57,7 +57,13 @@ function DataScope(options = {}) {
 }
 
 /**
- * 生成数据权限 MongoDB 查询条件
+ * 生成数据权限 SQL
+ * @param {object} ctx - 上下文对象
+ * @param {object} user - 当前用户
+ * @param {string} deptAlias - 部门表别名
+ * @param {string} userAlias - 用户表别名
+ * @param {string} permission - 权限字符
+ * @return {string} 数据权限 SQL 条件
  */
 async function generateDataScopeMongo(ctx, user, deptAlias, userAlias, permission) {
   const { model } = ctx;

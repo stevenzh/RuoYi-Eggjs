@@ -37,8 +37,6 @@ class ConfigService extends Service {
     return filter;
   }
 
-  // ==================== 分页查询 ====================
-
   async selectConfigPage(params = {}) {
     const filter = this._buildFilter(params);
     return await this.ctx.helper.pageQueryMongo(

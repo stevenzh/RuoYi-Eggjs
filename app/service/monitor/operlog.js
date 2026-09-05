@@ -99,6 +99,7 @@ class OperlogService extends Service {
    */
   async recordOperLog(operLog) {
     const { ctx } = this;
+
     try {
       await ctx.model.SysOperLog.create({
         title: operLog.title || "",

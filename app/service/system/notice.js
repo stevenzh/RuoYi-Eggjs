@@ -1,5 +1,5 @@
 /*
- * @Description: 通知公告服务层（MongoDB/Mongoose 版本）
+ * @Description: 通知公告服务层
  * @Author: AI Assistant
  * @Date: 2025-10-24
  */
@@ -41,20 +41,37 @@ class NoticeService extends Service {
     );
   }
 
+  /**
+   * 查询通知公告列表
+   * @param {object} notice - 查询参数
+   * @return {array} 通知公告列表
+   */
   async selectNoticeList(notice = {}) {
     const filter = this._buildFilter(notice);
     const list = await this.ctx.model.SysNotice.find(filter).lean();
     return this.ctx.helper.normalizeIds(list, 'noticeId');
   }
 
+  /**
+   * 根据通知公告ID查询通知公告
+   * @param {number} noticeId - 通知公告ID
+   * @return {object} 通知公告信息
+   */
   async selectNoticeById(noticeId) {
     const doc = await this.ctx.model.SysNotice.findById(this._toObjectId(noticeId)).lean();
     if (doc && doc._id != null) doc.noticeId = doc._id;
     return doc;
   }
 
+  /**
+   * 新增通知公告
+   * @param {object} notice - 通知公告对象
+   * @return {number} 影响行数
+   */
   async insertNotice(notice) {
     const { ctx } = this;
+
+    // 设置创建信息
     notice.createBy = ctx.state.user.userName;
 
     const doc = { createTime: new Date() };
@@ -69,8 +86,15 @@ class NoticeService extends Service {
     return result._id;
   }
 
+  /**
+   * 修改通知公告
+   * @param {object} notice - 通知公告对象
+   * @return {number} 影响行数
+   */
   async updateNotice(notice) {
     const { ctx } = this;
+
+    // 设置更新信息
     notice.updateBy = ctx.state.user.userName;
 
     const setFields = { updateTime: new Date() };
@@ -87,6 +111,11 @@ class NoticeService extends Service {
     return result.modifiedCount;
   }
 
+  /**
+   * 删除通知公告
+   * @param {array} noticeIds - 通知公告ID数组
+   * @return {number} 影响行数
+   */
   async deleteNoticeByIds(noticeIds) {
     const ids = noticeIds.map(id => this._toObjectId(id));
     const result = await this.ctx.model.SysNotice.deleteMany({ _id: { $in: ids } });

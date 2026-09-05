@@ -160,7 +160,6 @@ module.exports = {
     });
   },
 
-  // ===================== Coupon Business Helpers =====================
 
   /**
    * Generate JWT token for coupon (mini-program) users

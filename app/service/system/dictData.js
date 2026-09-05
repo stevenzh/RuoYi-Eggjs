@@ -1,5 +1,5 @@
 /*
- * @Description: 字典数据服务层（MongoDB/Mongoose 版本）
+ * @Description: 字典数据服务层
  * @Author: AI Assistant
  * @Date: 2025-10-24
  */
@@ -25,8 +25,6 @@ class DictDataService extends Service {
     return filter;
   }
 
-  // ==================== 分页查询 ====================
-
   async selectDictDataPage(params = {}) {
     const filter = this._buildFilter(params);
     return await this.ctx.helper.pageQueryMongo(
@@ -35,24 +33,34 @@ class DictDataService extends Service {
     );
   }
 
-  // ==================== 查询列表 ====================
 
+  /**
+   * 查询字典数据列表
+   * @param {object} dictData - 查询参数
+   * @return {array} 字典数据列表
+   */
   async selectDictDataList(dictData = {}) {
     const filter = this._buildFilter(dictData);
     const list = await this.ctx.model.SysDictData.find(filter).sort({ dictSort: 1 }).lean();
     return this.ctx.helper.normalizeIds(list, 'dictCode');
   }
 
-  // ==================== 按 ID 查询 ====================
-
+  /**
+   * 根据字典数据ID查询字典数据
+   * @param {number} dictCode - 字典数据ID
+   * @return {object} 字典数据信息
+   */
   async selectDictDataById(dictCode) {
     const doc = await this.ctx.model.SysDictData.findById(this._toObjectId(dictCode)).lean();
     if (doc && doc._id != null) doc.dictCode = doc._id;
     return doc;
   }
 
-  // ==================== 按类型查询 ====================
-
+  /**
+   * 根据字典类型查询字典数据
+   * @param {string} dictType - 字典类型
+   * @return {array} 字典数据列表
+   */
   async selectDictDataByType(dictType) {
     const { app } = this;
     let dictDatas = await DictUtils.getDictCache(app, dictType);
@@ -72,12 +80,15 @@ class DictDataService extends Service {
       await DictUtils.setDictCache(app, dictType, dictDatas);
       return dictDatas;
     }
-
+    
     return [];
   }
 
-  // ==================== 新增 ====================
-
+  /**
+   * 新增字典数据
+   * @param {object} dictData - 字典数据对象
+   * @return {number} 影响行数
+   */
   async insertDictData(dictData) {
     const { ctx, app } = this;
     dictData.createBy = ctx.state.user.userName;
@@ -101,8 +112,12 @@ class DictDataService extends Service {
     return 1;
   }
 
-  // ==================== 修改 ====================
 
+  /**
+   * 修改字典数据
+   * @param {object} dictData - 字典数据对象
+   * @return {number} 影响行数
+   */
   async updateDictData(dictData) {
     const { ctx, app } = this;
     dictData.updateBy = ctx.state.user.userName;
@@ -132,8 +147,6 @@ class DictDataService extends Service {
     return 0;
   }
 
-  // ==================== 修改字典类型 ====================
-
   async updateDictDataType(oldDictType, newDictType) {
     const result = await this.ctx.model.SysDictData.updateMany(
       { dictType: oldDictType },
@@ -142,15 +155,16 @@ class DictDataService extends Service {
     return result.modifiedCount;
   }
 
-  // ==================== 统计 ====================
-
   async countDictDataByType(dictType) {
     const count = await this.ctx.model.SysDictData.countDocuments({ dictType });
     return { count };
   }
 
-  // ==================== 删除 ====================
-
+  /**
+   * 删除字典数据
+   * @param {array} dictCodes - 字典数据 ID数组
+   * @return {number} 影响行数
+   */
   async deleteDictDataByIds(dictCodes) {
     const { app } = this;
     let deletedCount = 0;

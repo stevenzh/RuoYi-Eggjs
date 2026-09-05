@@ -60,6 +60,11 @@ class LogininforService extends Service {
     return this.ctx.helper.normalizeIds(list, 'infoId');
   }
 
+  /**
+   * 删除登录日志
+   * @param {array} infoIds - 日志ID数组
+   * @return {object} 删除结果
+   */
   async deleteLogininforByIds(infoIds) {
     const ids = infoIds.map(id => this._toObjectId(id));
     

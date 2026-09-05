@@ -87,8 +87,6 @@ class GenService extends Service {
     return conditions;
   }
 
-  // ==================== 分页查询 ====================
-
   /**
    * 分页查询代码生成表列表
    * 对应 GenTableMapper.xml 中 selectGenTableList
@@ -113,7 +111,6 @@ class GenService extends Service {
     return await ctx.helper.pageQuery(baseSql, params, db);
   }
 
-  // ==================== 查询列表 ====================
 
   /**
    * 查询代码生成表列表
@@ -215,7 +212,7 @@ class GenService extends Service {
         await this.setTableFromOptions(genTable);
         // 查询列信息
         genTable.columns = await this.selectGenTableColumnListByTableId(tableId);
-
+        
         // 调试日志
         ctx.logger.info(`查询表 ${tableId} 的列信息:`, {
           columnsType: typeof genTable.columns,
@@ -223,10 +220,10 @@ class GenService extends Service {
           columnsLength: Array.isArray(genTable.columns) ? genTable.columns.length : 'N/A',
           columns: genTable.columns
         });
-
+        
         return genTable;
       }
-
+      
       return null;
     } catch (err) {
       ctx.logger.error('查询代码生成表信息失败:', err);
@@ -269,7 +266,7 @@ class GenService extends Service {
    */
   async selectGenTableColumnListByTableId(tableId) {
     const { ctx } = this;
-
+    
     try {
       const db = this._getDb();
       const sql = `select ${this.GEN_TABLE_COLUMN_COLUMNS} from gen_table_column where table_id = ${this._escape(tableId)} order by sort`;
@@ -280,12 +277,12 @@ class GenService extends Service {
         ctx.logger.warn(`查询表 ${tableId} 的字段列表为空`);
         return [];
       }
-
+      
       if (!Array.isArray(result)) {
         ctx.logger.error(`查询表 ${tableId} 的字段列表不是数组:`, typeof result, result);
         return [];
       }
-
+      
       // 处理以 is 开头的属性，生成不带 is 的对应属性
       result.forEach(column => {
         Object.keys(column).forEach(key => {
@@ -297,7 +294,7 @@ class GenService extends Service {
           }
         });
       });
-
+      
       ctx.logger.info(`查询表 ${tableId} 的字段列表成功，共 ${result.length} 个字段`);
       return result;
     } catch (err) {
@@ -324,20 +321,18 @@ class GenService extends Service {
         ctx.logger.warn(`查询表 ${tableName} 的字段为空`);
         return [];
       }
-
+      
       if (!Array.isArray(result)) {
         ctx.logger.warn(`查询表 ${tableName} 的字段结果不是数组:`, typeof result, result);
         return [];
       }
-
+      
       return result;
     } catch (err) {
       ctx.logger.error('查询表字段失败:', err);
       return [];
     }
   }
-
-  // ==================== 导入表结构 ====================
 
   /**
    * 导入表结构
@@ -346,10 +341,10 @@ class GenService extends Service {
    */
   async importGenTable(tableNames) {
     const { ctx } = this;
-
+    
     try {
       const operName = ctx.state.user.userName || 'admin';
-
+      
       // 查询表信息
       const tableList = await this.selectDbTableListByNames(tableNames);
 
@@ -527,19 +522,17 @@ class GenService extends Service {
             const insertColumnSql = `insert into gen_table_column (${colFields.join(', ')}) values(${colValues.join(', ')})`;
             await db.insert(insertColumnSql);
           }
-
+          
           count++;
         }
       }
-
+      
       return count;
     } catch (err) {
       ctx.logger.error('导入表结构失败:', err);
       throw new Error('导入失败：' + err.message);
     }
   }
-
-  // ==================== 修改 ====================
 
   /**
    * 修改代码生成配置
@@ -548,7 +541,7 @@ class GenService extends Service {
    */
   async updateGenTable(genTable) {
     const { ctx } = this;
-
+    
     try {
       // 序列化 options
       const options = JSON.stringify(genTable.params || {});
@@ -668,15 +661,13 @@ class GenService extends Service {
           }
         }
       }
-
+      
       return result;
     } catch (err) {
       ctx.logger.error('修改代码生成配置失败:', err);
       throw new Error('修改失败：' + err.message);
     }
   }
-
-  // ==================== 删除 ====================
 
   /**
    * 删除代码生成表配置
@@ -685,7 +676,7 @@ class GenService extends Service {
    */
   async deleteGenTableByIds(tableIds) {
     const { ctx } = this;
-
+    
     try {
       const db = this._getDb();
       const escapedIds = tableIds.map(id => this._escape(id)).join(', ');
@@ -703,8 +694,6 @@ class GenService extends Service {
     }
   }
 
-  // ==================== 预览代码 ====================
-
   /**
    * 预览代码
    * @param {number} tableId - 表ID
@@ -712,32 +701,32 @@ class GenService extends Service {
    */
   async previewCode(tableId) {
     const { ctx, app } = this;
-
+    
     try {
       // 查询表信息
       const table = await this.selectGenTableById(tableId);
       if (!table) {
         throw new Error('表信息不存在');
       }
-
+      
       // 设置主子表信息
       await this.setSubTable(table);
-
+      
       // 设置主键列信息
       this.setPkColumn(table);
-
+      
       // 准备模板上下文
       const context = VelocityUtils.prepareContext(table);
-
+      
       // 获取模板列表
       const templates = VelocityUtils.getTemplateList(table.tplCategory, table.tplWebType);
-
+      
       const dataMap = {};
-
+      
       // 渲染每个模板
       for (const template of templates) {
         const templatePath = path.join(app.baseDir, 'app/templates', template);
-
+        
         if (await fs.pathExists(templatePath)) {
           const templateContent = await fs.readFile(templatePath, 'utf-8');
           let code = VelocityUtils.render(templateContent, context);
@@ -748,7 +737,7 @@ class GenService extends Service {
           ctx.logger.warn(`模板文件不存在: ${templatePath}`);
         }
       }
-
+      
       return dataMap;
     } catch (err) {
       ctx.logger.error('预览代码失败:', err);
@@ -763,40 +752,40 @@ class GenService extends Service {
    */
   async downloadCode(tableName) {
     const { ctx } = this;
-
+    
     try {
       // 查询表信息
       const table = await this.selectGenTableByName(tableName);
       if (!table) {
         throw new Error('表信息不存在');
       }
-
+      
       // 设置主子表信息
       await this.setSubTable(table);
-
+      
       // 设置主键列信息
       this.setPkColumn(table);
-
+      
       // 生成代码
       const codeMap = await this.generatorCode(table);
-
+      
       // 创建 zip 压缩包
       const archive = archiver('zip', {
         zlib: { level: 9 }
       });
-
+      
       // 添加文件到压缩包
       for (const [fileName, content] of Object.entries(codeMap)) {
         archive.append(content, { name: fileName });
       }
-
+      
       // 完成压缩
       archive.finalize();
-
+      
       // 转换为 Buffer
       const chunks = [];
       archive.on('data', chunk => chunks.push(chunk));
-
+      
       return new Promise((resolve, reject) => {
         archive.on('end', () => {
           resolve(Buffer.concat(chunks));
@@ -816,29 +805,29 @@ class GenService extends Service {
    */
   async genCode(tableName) {
     const { ctx, app } = this;
-
+    
     try {
       // 查询表信息
       const table = await this.selectGenTableByName(tableName);
       if (!table) {
         throw new Error('表信息不存在');
       }
-
+      
       // 设置主子表信息
       await this.setSubTable(table);
-
+      
       // 设置主键列信息
       this.setPkColumn(table);
-
+      
       // 生成代码
       const codeMap = await this.generatorCode(table);
-
+      
       // 写入文件
       let count = 0;
       for (const [fileName, content] of Object.entries(codeMap)) {
         // 排除 sql、api.js、vue 文件（这些通常不直接写入后端项目）
-        if (!fileName.includes('.sql') &&
-            !fileName.includes('api.js') &&
+        if (!fileName.includes('.sql') && 
+            !fileName.includes('api.js') && 
             !fileName.includes('.vue')) {
           const filePath = this.getGenPath(table, fileName);
           await fs.ensureDir(path.dirname(filePath));
@@ -846,7 +835,7 @@ class GenService extends Service {
           count++;
         }
       }
-
+      
       return count;
     } catch (err) {
       ctx.logger.error('生成代码失败:', err);
@@ -861,44 +850,44 @@ class GenService extends Service {
    */
   async synchDb(tableName) {
     const { ctx } = this;
-
+    
     try {
       // 查询表信息
       const table = await this.selectGenTableByName(tableName);
       if (!table) {
         throw new Error('表信息不存在');
       }
-
+      
       const tableColumns = table.columns || [];
       const tableColumnMap = {};
       for (const column of tableColumns) {
         tableColumnMap[column.columnName] = column;
       }
-
+      
       // 查询数据库表列
       const dbTableColumns = await this.selectDbTableColumnsByName(tableName);
       if (!dbTableColumns || dbTableColumns.length === 0) {
         throw new Error('同步数据失败，原表结构不存在');
       }
-
+      
       const dbTableColumnNames = dbTableColumns.map(col => col.columnName);
       const db = this._getDb();
 
       // 同步列信息
       for (const column of dbTableColumns) {
         GenUtils.initColumnField(column, table);
-
+        
         if (tableColumnMap[column.columnName]) {
           // 更新已有列
           const prevColumn = tableColumnMap[column.columnName];
           column.columnId = prevColumn.columnId;
-
+          
           if (column.isList === '1') {
             // 如果是列表，继续保留查询方式/字典类型选项
             column.dictType = prevColumn.dictType;
             column.queryType = prevColumn.queryType;
           }
-
+          
           if (prevColumn.isRequired && !column.isPk &&
               (column.isInsert === '1' || column.isEdit === '1')) {
             // 继续保留必填/显示类型选项
@@ -1046,7 +1035,7 @@ class GenService extends Service {
         const delColumnIds = delColumns.map(col => this._escape(col.columnId)).join(', ');
         await db.del(`delete from gen_table_column where column_id in (${delColumnIds})`);
       }
-
+      
       return 1;
     } catch (err) {
       ctx.logger.error('同步数据库失败:', err);
@@ -1061,41 +1050,41 @@ class GenService extends Service {
    */
   async batchGenCode(tableNames) {
     const { ctx } = this;
-
+    
     try {
       const archive = archiver('zip', {
         zlib: { level: 9 }
       });
-
+      
       for (const tableName of tableNames) {
         // 查询表信息
         const table = await this.selectGenTableByName(tableName);
         if (!table) {
           continue;
         }
-
+        
         // 设置主子表信息
         await this.setSubTable(table);
-
+        
         // 设置主键列信息
         this.setPkColumn(table);
-
+        
         // 生成代码
         const codeMap = await this.generatorCode(table);
-
+        
         // 添加文件到压缩包
         for (const [fileName, content] of Object.entries(codeMap)) {
           archive.append(content, { name: fileName });
         }
       }
-
+      
       // 完成压缩
       archive.finalize();
-
+      
       // 转换为 Buffer
       const chunks = [];
       archive.on('data', chunk => chunks.push(chunk));
-
+      
       return new Promise((resolve, reject) => {
         archive.on('end', () => {
           resolve(Buffer.concat(chunks));
@@ -1115,19 +1104,19 @@ class GenService extends Service {
    */
   async generatorCode(table) {
     const { app } = this;
-
+    
     // 准备模板上下文
     const context = VelocityUtils.prepareContext(table);
-
+    
     // 获取模板列表
     const templates = VelocityUtils.getTemplateList(table.tplCategory, table.tplWebType);
-
+    
     const codeMap = {};
-
+    
     // 渲染每个模板
     for (const template of templates) {
       const templatePath = path.join(app.baseDir, 'app/templates', template);
-
+      
       if (await fs.pathExists(templatePath)) {
         const templateContent = await fs.readFile(templatePath, 'utf-8');
         let code = VelocityUtils.render(templateContent, context);
@@ -1137,7 +1126,7 @@ class GenService extends Service {
         codeMap[fileName] = code;
       }
     }
-
+    
     return codeMap;
   }
 
@@ -1147,20 +1136,20 @@ class GenService extends Service {
    */
   setPkColumn(table) {
     const { ctx } = this;
-
+    
     // 确保 columns 是数组
     if (!table.columns) {
       ctx.logger.warn('表信息中缺少 columns 字段');
       table.columns = [];
     }
-
+    
     if (!Array.isArray(table.columns)) {
       ctx.logger.error('表的 columns 不是数组类型:', typeof table.columns, table.columns);
       table.columns = [];
     }
-
+    
     const columns = table.columns;
-
+    
     for (const column of columns) {
       if (column.isPk === '1') {
         table.pkColumn = column;
@@ -1169,12 +1158,12 @@ class GenService extends Service {
         break;
       }
     }
-
+    
     if (!table.pkColumn && columns.length > 0) {
       table.pkColumn = columns[0];
       table.pkColumn.capJavaField = GenUtils.capitalize(table.pkColumn.javaField);
     }
-
+    
     // 处理子表
     if (table.tplCategory === GenConstants.TPL_SUB && table.subTable) {
       const subColumns = table.subTable.columns || [];
@@ -1185,7 +1174,7 @@ class GenService extends Service {
           break;
         }
       }
-
+      
       if (!table.subTable.pkColumn && subColumns.length > 0) {
         table.subTable.pkColumn = subColumns[0];
         table.subTable.pkColumn.capJavaField = GenUtils.capitalize(table.subTable.pkColumn.javaField);
@@ -1213,7 +1202,7 @@ class GenService extends Service {
     if (options) {
       try {
         const paramsObj = typeof options === 'string' ? JSON.parse(options) : options;
-
+        
         genTable.treeCode = paramsObj[GenConstants.TREE_CODE];
         genTable.treeParentCode = paramsObj[GenConstants.TREE_PARENT_CODE];
         genTable.treeName = paramsObj[GenConstants.TREE_NAME];
@@ -1234,11 +1223,11 @@ class GenService extends Service {
   getGenPath(table, fileName) {
     const { app } = this;
     const genPath = table.genPath || '/';
-
+    
     if (genPath === '/') {
       return path.join(app.baseDir, fileName);
     }
-
+    
     return path.join(genPath, fileName);
   }
 
@@ -1249,15 +1238,15 @@ class GenService extends Service {
    */
   async createTable(sql) {
     const { ctx } = this;
-
+    
     try {
       // 1. 过滤 SQL 关键字
       SqlUtils.filterKeyword(sql);
-
+      
       // 2. 分割 SQL 语句
       const statements = SqlUtils.splitStatements(sql);
       const tableNames = [];
-
+      
       // 3. 执行每个 CREATE TABLE 语句
       const db = this._getDb();
       for (const statement of statements) {
@@ -1270,18 +1259,18 @@ class GenService extends Service {
           tableNames.push(...names);
         }
       }
-
+      
       if (tableNames.length === 0) {
         throw new Error('未找到有效的 CREATE TABLE 语句');
       }
-
+      
       // 4. 查询新创建的表信息
       const tableList = await this.selectDbTableListByNames(tableNames);
-
+      
       // 5. 导入表结构
       const operName = ctx.state.user.userName || 'admin';
       await this.importGenTable(tableNames);
-
+      
       return {
         success: true,
         tableNames,
@@ -1295,3 +1284,4 @@ class GenService extends Service {
 }
 
 module.exports = GenService;
+

@@ -35,8 +35,6 @@ class JobLogService extends Service {
     return filter;
   }
 
-  // ==================== 分页查询 ====================
-
   async selectJobLogPage(params = {}) {
     const filter = this._buildFilter(params);
     return await this.ctx.helper.pageQueryMongo(
@@ -45,8 +43,13 @@ class JobLogService extends Service {
     );
   }
 
-  // ==================== 查询列表 ====================
 
+  /**
+   * 查询调度日志列表
+   * @param {object} page - 分页参数 {pageNum, pageSize}
+   * @param {object} jobLog - 查询条件
+   * @return {array} 调度日志列表
+   */
   async selectJobLogList(page, jobLog = {}) {
     const filter = this._buildFilter({ ...jobLog, params: { beginTime: jobLog.beginTime, endTime: jobLog.endTime } });
     let query = this.ctx.model.SysJobLog.find(filter).sort({ createTime: -1 });
@@ -61,21 +64,32 @@ class JobLogService extends Service {
     return this.ctx.helper.normalizeIds(list, 'jobLogId');
   }
 
+  /**
+   * 查询调度日志总数
+   * @param {object} jobLog - 查询条件
+   * @return {number} 总数
+   */
   async selectJobLogCount(jobLog = {}) {
     const filter = this._buildFilter({ ...jobLog, params: { beginTime: jobLog.beginTime, endTime: jobLog.endTime } });
     return await this.ctx.model.SysJobLog.countDocuments(filter);
   }
 
-  // ==================== 按 ID 查询 ====================
-
+  /**
+   * 根据日志ID查询调度日志
+   * @param {number} jobLogId - 日志ID
+   * @return {object} 调度日志信息
+   */
   async selectJobLogById(jobLogId) {
     const doc = await this.ctx.model.SysJobLog.findById(this._toObjectId(jobLogId)).lean();
     if (doc && doc._id != null) doc.jobLogId = doc._id;
     return doc;
   }
 
-  // ==================== 新增 ====================
-
+  /**
+   * 新增调度日志
+   * @param {object} jobLog - 调度日志信息
+   * @return {number} 影响行数
+   */
   async insertJobLog(jobLog) {
     const doc = {};
     if (jobLog.jobName) doc.jobName = jobLog.jobName;
@@ -90,24 +104,41 @@ class JobLogService extends Service {
     return 1;
   }
 
-  // ==================== 删除 ====================
-
+  /**
+   * 批量删除调度日志
+   * @param {array} jobLogIds - 调度日志ID数组
+   * @return {number} 影响行数
+   */
   async deleteJobLogByIds(jobLogIds) {
     const ids = jobLogIds.map(id => this._toObjectId(id));
     const result = await this.ctx.model.SysJobLog.deleteMany({ _id: { $in: ids } });
     return result.deletedCount;
   }
 
+  /**
+   * 删除单条调度日志
+   * @param {number} jobLogId - 调度日志ID
+   * @return {number} 影响行数
+   */
   async deleteJobLogById(jobLogId) {
     const result = await this.ctx.model.SysJobLog.deleteOne({ _id: this._toObjectId(jobLogId) });
     return result.deletedCount;
   }
 
+  /**
+   * 清空调度日志
+   * @return {number} 影响行数
+   */
   async cleanJobLog() {
     const result = await this.ctx.model.SysJobLog.deleteMany({});
     return result.deletedCount;
   }
 
+  /**
+   * 根据日期删除调度日志
+   * @param {string} beforeDate - 删除此日期之前的日志
+   * @return {number} 影响行数
+   */
   async deleteJobLogByDate(beforeDate) {
     const list = await this.selectJobLogList(null, { params: { endTime: beforeDate } });
     if (!list || list.length === 0) return 0;
@@ -116,8 +147,15 @@ class JobLogService extends Service {
     return result.deletedCount;
   }
 
-  // ==================== 记录日志 ====================
-
+  /**
+   * 记录任务执行日志
+   * @param {string} jobName - 任务名称
+   * @param {string} jobGroup - 任务组名
+   * @param {string} invokeTarget - 调用目标
+   * @param {string} status - 执行状态 (0成功 1失败)
+   * @param {string} jobMessage - 日志信息
+   * @param {string} exceptionInfo - 异常信息
+   */
   async recordJobLog(jobName, jobGroup, invokeTarget, status, jobMessage, exceptionInfo = '') {
     try {
       await this.insertJobLog({
@@ -130,8 +168,11 @@ class JobLogService extends Service {
     }
   }
 
-  // ==================== 导出 ====================
-
+  /**
+   * 导出调度日志
+   * @param {array} list - 调度日志列表
+   * @return {buffer} Excel 文件 Buffer
+   */
   async exportJobLog(list) {
     const headers = ['日志编号', '任务名称', '任务组名', '调用目标', '日志信息', '执行状态', '异常信息', '执行时间'];
     let csv = headers.join(',') + '\n';
@@ -151,11 +192,14 @@ class JobLogService extends Service {
       csv += escapedRow.join(',') + '\n';
     });
 
-    return Buffer.from('﻿﻿' + csv, 'utf8');
+    return Buffer.from('\ufeff' + csv, 'utf8');
   }
 
-  // ==================== 统计 ====================
-
+  /**
+   * 获取任务执行统计信息
+   * @param {object} params - 查询参数
+   * @return {object} 统计信息
+   */
   async getJobLogStatistics(params = {}) {
     const filter = this._buildFilter({ ...params, params: { beginTime: params.beginTime, endTime: params.endTime } });
     const list = await this.ctx.model.SysJobLog.find(filter).lean();

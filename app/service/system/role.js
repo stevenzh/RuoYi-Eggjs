@@ -43,8 +43,6 @@ class RoleService extends Service {
     return ids.map(id => this._toObjectId(id));
   }
 
-  // ==================== 查询条件构建 ====================
-
   /**
    * 构建角色查询 Filter（对应原 _buildSelectRoleListSql）
    * @param {object} params - 查询参数
@@ -86,8 +84,6 @@ class RoleService extends Service {
     return filter;
   }
 
-  // ==================== 查询所有 ====================
-
   /**
    * 查询所有角色
    * 对应 SysRoleMapper.xml 中 selectRoleAll
@@ -97,8 +93,6 @@ class RoleService extends Service {
     const list = await this.model.SysRole.find().lean() || [];
     return this.ctx.helper.normalizeIds(list, 'roleId');
   }
-
-  // ==================== 按用户ID查询 ====================
 
   /**
    * 根据用户ID查询角色列表
@@ -125,13 +119,10 @@ class RoleService extends Service {
     return roles;
   }
 
-  // ==================== 分页查询 ====================
-
   /**
    * 分页查询角色列表（带数据权限过滤）
-   * 对应 SysRoleMapper.xml 中 selectRoleList
    * @param {object} role - 查询参数
-   * @return {object} 分页结果 { rows, total }
+   * @return {object} 分页结果
    */
   @DataScope({ deptAlias: "d" })
   async selectRolePage(role = {}) {
@@ -158,11 +149,8 @@ class RoleService extends Service {
     );
   }
 
-  // ==================== 查询列表 ====================
-
   /**
    * 查询角色列表（带数据权限过滤）
-   * 对应 SysRoleMapper.xml 中 selectRoleList
    * @param {object} role - 查询参数
    * @return {array} 角色列表
    */
@@ -195,13 +183,10 @@ class RoleService extends Service {
     return this.ctx.helper.normalizeIds(list, 'roleId');
   }
 
-  // ==================== 按ID查询 ====================
-
   /**
    * 根据角色ID查询角色
-   * 对应 SysRoleMapper.xml 中 selectRoleById
-   * @param {string|ObjectId} roleId - 角色ID
-   * @return {object|null} 角色信息
+   * @param {number} roleId - 角色ID
+   * @return {object} 角色信息
    */
   async selectRoleById(roleId) {
     const doc = await this.model.SysRole
@@ -211,11 +196,8 @@ class RoleService extends Service {
     return doc;
   }
 
-  // ==================== 唯一性校验 ====================
-
   /**
    * 校验角色名称是否唯一
-   * 对应 SysRoleMapper.xml 中 checkRoleNameUnique
    * @param {object} role - 角色对象
    * @return {boolean} true-唯一 false-不唯一
    */
@@ -234,7 +216,6 @@ class RoleService extends Service {
 
   /**
    * 校验角色权限字符是否唯一
-   * 对应 SysRoleMapper.xml 中 checkRoleKeyUnique
    * @param {object} role - 角色对象
    * @return {boolean} true-唯一 false-不唯一
    */
@@ -250,8 +231,6 @@ class RoleService extends Service {
 
     return true;
   }
-
-  // ==================== 校验 ====================
 
   /**
    * 校验角色是否允许操作
@@ -284,11 +263,8 @@ class RoleService extends Service {
     }
   }
 
-  // ==================== 新增 ====================
-
   /**
    * 新增角色
-   * 对应 SysRoleMapper.xml 中 insertRole（动态字段）
    * @param {object} role - 角色对象
    * @return {number} 1-成功 0-失败
    */
@@ -340,11 +316,8 @@ class RoleService extends Service {
     return 0;
   }
 
-  // ==================== 修改 ====================
-
   /**
    * 修改角色
-   * 对应 SysRoleMapper.xml 中 updateRole（动态 SET）
    * @param {object} role - 角色对象
    * @return {number} 影响行数（modifiedCount）
    */
@@ -477,11 +450,8 @@ class RoleService extends Service {
     return result.modifiedCount;
   }
 
-  // ==================== 删除 ====================
-
   /**
-   * 删除角色（软删除）
-   * 对应 SysRoleMapper.xml 中 deleteRoleByIds
+   * 删除角色
    * @param {array} roleIds - 角色ID数组
    * @return {number} 影响行数
    */
@@ -503,11 +473,8 @@ class RoleService extends Service {
     return result.modifiedCount;
   }
 
-  // ==================== 授权用户管理 ====================
-
   /**
    * 取消授权用户
-   * 对应 SysUserRoleMapper.xml 中 deleteUserRoleInfo
    * @param {object} userRole - 用户角色对象
    * @return {number} 影响行数
    */
@@ -522,7 +489,6 @@ class RoleService extends Service {
 
   /**
    * 批量取消授权用户
-   * 对应 SysUserRoleMapper.xml 中 deleteUserRoleInfos
    * @param {string|ObjectId} roleId - 角色ID
    * @param {array} userIds - 用户ID数组
    * @return {number} 影响行数
@@ -538,7 +504,6 @@ class RoleService extends Service {
 
   /**
    * 批量授权用户
-   * 对应 SysUserRoleMapper.xml 中 batchUserRole
    * @param {string|ObjectId} roleId - 角色ID
    * @param {array} userIds - 用户ID数组
    * @return {number} 成功数量
@@ -559,11 +524,8 @@ class RoleService extends Service {
     return userIds.length;
   }
 
-  // ==================== 关联表操作 ====================
-
   /**
    * 插入角色与菜单关联
-   * 对应 SysRoleMenuMapper.xml 中 batchRoleMenu
    * @param {string|ObjectId} roleId - 角色ID
    * @param {array} menuIds - 菜单ID数组
    */
@@ -583,7 +545,6 @@ class RoleService extends Service {
 
   /**
    * 插入角色与部门关联
-   * 对应 SysRoleDeptMapper.xml 中 batchRoleDept
    * @param {string|ObjectId} roleId - 角色ID
    * @param {array} deptIds - 部门ID数组
    */

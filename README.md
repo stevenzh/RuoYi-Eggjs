@@ -182,7 +182,7 @@ Navicat Premium 连接Mongo服务，创建数据库 ruoyi
 
 根据选择的数据库类型，在 `config/config.local.js` 中配置：
 
-#### MySQL 配置
+#### Mongo 配置
 
 ```javascript
 config.mongoose = {
