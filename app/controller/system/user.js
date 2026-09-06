@@ -232,7 +232,7 @@ module.exports = app => {
         
         // 校验用户名是否唯一
         const isUserNameUnique = await service.system.user.checkUserNameUnique(user);
-        if (!isUserNameUnique) {
+        if (isUserNameUnique && isUserNameUnique.userId !== user.userId) {
           ctx.body = {
             code: 500,
             msg: `修改用户'${user.userName}'失败，登录账号已存在`
@@ -242,8 +242,8 @@ module.exports = app => {
         
         // 校验手机号是否唯一
         if (user.phonenumber) {
-          const isPhoneUnique = await service.system.user.checkPhoneUnique(user);
-          if (!isPhoneUnique) {
+          const checkUser = await service.system.user.checkPhoneUnique(user);
+          if (checkUser && checkUser.userId !== user.userId) {
             ctx.body = {
               code: 500,
               msg: `修改用户'${user.userName}'失败，手机号码已存在`
@@ -254,8 +254,8 @@ module.exports = app => {
 
         // 校验邮箱是否唯一
         if (user.email) {
-          const isEmailUnique = await service.system.user.checkEmailUnique(user);
-          if (!isEmailUnique) {
+          const checkUser = await service.system.user.checkEmailUnique(user);
+          if (checkUser && checkUser.userId !== user.userId) {
             ctx.body = {
               code: 500,
               msg: `修改用户'${user.userName}'失败，邮箱账号已存在`

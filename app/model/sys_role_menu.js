@@ -1,6 +1,5 @@
 /**
  * 角色-菜单关联模型
- * 对应 MySQL sys_role_menu 表
  */
 module.exports = app => {
   const mongoose = app.mongoose;

@@ -1,6 +1,5 @@
 /**
  * 角色-部门关联模型（数据权限）
- * 对应 MySQL sys_role_dept 表
  */
 module.exports = app => {
   const mongoose = app.mongoose;

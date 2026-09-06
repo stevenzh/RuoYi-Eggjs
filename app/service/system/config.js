@@ -26,8 +26,8 @@ class ConfigService extends Service {
     if (params.configKey) {
       filter.configKey = { $regex: params.configKey, $options: 'i' };
     }
-    const beginTime = (params.params && params.params.beginTime) || params.beginTime;
-    const endTime = (params.params && params.params.endTime) || params.endTime;
+    const beginTime = (params.params && params.params.beginTime) || params['params[beginTime]'];
+    const endTime = (params.params && params.params.endTime) || params['params[endTime]'];
     if (beginTime) {
       filter.createTime = { ...filter.createTime, $gte: new Date(beginTime) };
     }
@@ -185,11 +185,8 @@ class ConfigService extends Service {
     for (const configId of configIds) {
       // 查询参数配置
       const config = await this.selectConfigById(configId);
-      
-      if (!config) {
-        continue;
-      }
-      
+      if (!config) continue;
+
       // 检查是否为内置参数
       if (config.configType === 'Y') {
         throw new Error(`内置参数【${config.configKey}】不能删除`);

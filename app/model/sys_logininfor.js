@@ -1,6 +1,5 @@
 /**
  * 登录日志模型
- * 对应 MySQL sys_logininfor 表
  */
 module.exports = app => {
   const mongoose = app.mongoose;

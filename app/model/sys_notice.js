@@ -1,6 +1,5 @@
 /**
  * 通知公告模型
- * 对应 MySQL sys_notice 表
  */
 module.exports = app => {
   const mongoose = app.mongoose;

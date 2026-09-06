@@ -65,8 +65,8 @@ class RoleService extends Service {
     }
 
     // 时间范围
-    const beginTime = (params.params && params.params.beginTime) || params.beginTime;
-    const endTime = (params.params && params.params.endTime) || params.endTime;
+    const beginTime = (params.params && params.params.beginTime) || params['params[beginTime]'];
+    const endTime = (params.params && params.params.endTime) || params['params[endTime]'];
     if (beginTime) {
       filter.createTime = filter.createTime || {};
       filter.createTime.$gte = new Date(beginTime);

@@ -1,6 +1,5 @@
 /**
  * 用户模型
- * 对应 MySQL sys_user 表
  */
 module.exports = app => {
   const mongoose = app.mongoose;

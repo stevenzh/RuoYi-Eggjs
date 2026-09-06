@@ -666,6 +666,7 @@ class MenuService extends Service {
     // 设置更新信息
     setFields.updateBy = ctx.state.user.userName;
 
+    // 更新菜单
     const result = await this.model.SysMenu.updateOne(
       { _id: this._toObjectId(menu.menuId) },
       { $set: setFields }

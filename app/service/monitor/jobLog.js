@@ -121,8 +121,13 @@ class JobLogService extends Service {
    * @return {number} 影响行数
    */
   async deleteJobLogById(jobLogId) {
-    const result = await this.ctx.model.SysJobLog.deleteOne({ _id: this._toObjectId(jobLogId) });
-    return result.deletedCount;
+    try {
+      const result = await this.ctx.model.SysJobLog.deleteOne({ _id: this._toObjectId(jobLogId) });
+      return result.deletedCount;
+    } catch (err) {
+      ctx.logger.error('删除调度日志失败:', err);
+      throw err;
+    }
   }
 
   /**
@@ -130,8 +135,13 @@ class JobLogService extends Service {
    * @return {number} 影响行数
    */
   async cleanJobLog() {
-    const result = await this.ctx.model.SysJobLog.deleteMany({});
-    return result.deletedCount;
+    try {
+      const result = await this.ctx.model.SysJobLog.deleteMany({});
+      return result.deletedCount;
+    } catch (err) {
+      ctx.logger.error('清空调度日志失败:', err);
+      throw err;
+    }
   }
 
   /**
@@ -140,11 +150,16 @@ class JobLogService extends Service {
    * @return {number} 影响行数
    */
   async deleteJobLogByDate(beforeDate) {
-    const list = await this.selectJobLogList(null, { params: { endTime: beforeDate } });
-    if (!list || list.length === 0) return 0;
-    const ids = list.map(log => log._id);
-    const result = await this.ctx.model.SysJobLog.deleteMany({ _id: { $in: ids } });
-    return result.deletedCount;
+    try {
+      const list = await this.selectJobLogList(null, { params: { endTime: beforeDate } });
+      if (!list || list.length === 0) return 0;
+      const ids = list.map(log => log._id);
+      const result = await this.ctx.model.SysJobLog.deleteMany({ _id: { $in: ids } });
+      return result.deletedCount;
+    } catch (err) {
+      ctx.logger.error('根据日期删除调度日志失败:', err);
+      throw err;
+    }
   }
 
   /**
@@ -174,25 +189,53 @@ class JobLogService extends Service {
    * @return {buffer} Excel 文件 Buffer
    */
   async exportJobLog(list) {
-    const headers = ['日志编号', '任务名称', '任务组名', '调用目标', '日志信息', '执行状态', '异常信息', '执行时间'];
-    let csv = headers.join(',') + '\n';
-
-    list.forEach(item => {
-      const row = [
-        item._id, item.jobName, item.jobGroup, item.invokeTarget, item.jobMessage,
-        item.status === '0' ? '成功' : '失败', item.exceptionInfo || '', item.createTime,
+    try {
+      // 简化实现：返回 CSV 格式
+      // 实际项目中建议使用 exceljs 或 xlsx 库生成真正的 Excel 文件
+      const headers = [
+        '日志编号',
+        '任务名称',
+        '任务组名',
+        '调用目标',
+        '日志信息',
+        '执行状态',
+        '异常信息',
+        '执行时间'
       ];
-      const escapedRow = row.map(cell => {
-        const cellStr = String(cell || '');
-        if (cellStr.includes(',') || cellStr.includes('"') || cellStr.includes('\n')) {
-          return `"${cellStr.replace(/"/g, '""')}"`;
-        }
-        return cellStr;
+      
+      // 构造 CSV 数据
+      let csv = headers.join(',') + '\n';
+      
+      list.forEach(item => {
+        const row = [
+          item._id,
+          item.jobName,
+          item.jobGroup,
+          item.invokeTarget,
+          item.jobMessage,
+          item.status === '0' ? '成功' : '失败',
+          item.exceptionInfo || '',
+          item.createTime
+        ];
+        
+        // 对包含逗号或引号的字段进行转义
+        const escapedRow = row.map(cell => {
+          const cellStr = String(cell || '');
+          if (cellStr.includes(',') || cellStr.includes('"') || cellStr.includes('\n')) {
+            return `"${cellStr.replace(/"/g, '""')}"`;
+          }
+          return cellStr;
+        });
+        
+        csv += escapedRow.join(',') + '\n';
       });
-      csv += escapedRow.join(',') + '\n';
-    });
-
-    return Buffer.from('\ufeff' + csv, 'utf8');
+      
+      // 添加 BOM 以支持 Excel 正确识别 UTF-8 编码的中文
+      return Buffer.from('\ufeff' + csv, 'utf8');
+    } catch (err) {
+      ctx.logger.error('导出调度日志失败:', err);
+      throw err;
+    }
   }
 
   /**
@@ -201,15 +244,20 @@ class JobLogService extends Service {
    * @return {object} 统计信息
    */
   async getJobLogStatistics(params = {}) {
-    const filter = this._buildFilter({ ...params, params: { beginTime: params.beginTime, endTime: params.endTime } });
-    const list = await this.ctx.model.SysJobLog.find(filter).lean();
+    try {
+      const filter = this._buildFilter({ ...params, params: { beginTime: params.beginTime, endTime: params.endTime } });
+      const list = await this.ctx.model.SysJobLog.find(filter).lean();
 
-    const stats = { total: list.length, successCount: 0, failureCount: 0, successRate: 0 };
-    list.forEach(log => { log.status === '0' ? stats.successCount++ : stats.failureCount++; });
-    if (stats.total > 0) {
-      stats.successRate = (stats.successCount / stats.total * 100).toFixed(2) + '%';
+      const stats = { total: list.length, successCount: 0, failureCount: 0, successRate: 0 };
+      list.forEach(log => { log.status === '0' ? stats.successCount++ : stats.failureCount++; });
+      if (stats.total > 0) {
+        stats.successRate = (stats.successCount / stats.total * 100).toFixed(2) + '%';
+      }
+      return stats;
+    } catch (err) {
+      ctx.logger.error('获取任务执行统计信息失败:', err);
+      throw err;
     }
-    return stats;
   }
 }
 

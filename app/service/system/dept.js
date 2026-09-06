@@ -99,9 +99,11 @@ class DeptService extends Service {
       return null;
     }
 
+    // 精确查询部门名称
     const depts = await this.selectDeptList({ deptName });
 
     if (depts && depts.length > 0) {
+      // 精确匹配部门名称
       const exactMatch = depts.find((dept) => dept.deptName === deptName);
       return exactMatch || depts[0];
     }
@@ -125,7 +127,10 @@ class DeptService extends Service {
    * @return {array} 部门树
    */
   buildDeptTree(depts) {
+    // 找出所有部门ID
     const deptIds = depts.map((d) => String(d.deptId));
+
+    // 找出顶级节点（父节点不在列表中的）
     const tree = [];
     depts.forEach((dept) => {
       if (!deptIds.includes(String(dept.parentId))) {
@@ -506,6 +511,7 @@ class DeptService extends Service {
       };
     });
 
+    // 批量更新
     if (bulkOps.length > 0) {
       await this.model.SysDept.bulkWrite(bulkOps);
     }
@@ -523,6 +529,7 @@ class DeptService extends Service {
       return;
     }
 
+    // 批量更新状态
     await this.model.SysDept.updateMany(
       { _id: { $in: ancestorIds } },
       { $set: { status: "0" } }
@@ -536,6 +543,7 @@ class DeptService extends Service {
    */
   async deleteDeptById(deptId) {
     const _id = this._toObjectId(deptId);
+    // 删除部门（软删除）
     const result = await this.model.SysDept.updateOne(
       { _id },
       { $set: { delFlag: "2" } }

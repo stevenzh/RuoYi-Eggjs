@@ -63,6 +63,8 @@ class DictDataService extends Service {
    */
   async selectDictDataByType(dictType) {
     const { app } = this;
+    
+    // 先从缓存获取
     let dictDatas = await DictUtils.getDictCache(app, dictType);
 
     if (dictDatas && dictDatas.length > 0) {
@@ -91,6 +93,8 @@ class DictDataService extends Service {
    */
   async insertDictData(dictData) {
     const { ctx, app } = this;
+    
+    // 设置创建信息
     dictData.createBy = ctx.state.user.userName;
 
     const doc = { createTime: new Date() };
@@ -120,6 +124,8 @@ class DictDataService extends Service {
    */
   async updateDictData(dictData) {
     const { ctx, app } = this;
+    
+    // 设置更新信息
     dictData.updateBy = ctx.state.user.userName;
 
     const setFields = { updateTime: new Date() };
@@ -169,23 +175,32 @@ class DictDataService extends Service {
     const { app } = this;
     let deletedCount = 0;
     const dictTypes = new Set();
-
+    
     for (const dictCode of dictCodes) {
+      // 查询字典数据
       const dictData = await this.selectDictDataById(dictCode);
       if (!dictData) continue;
 
+      
+      // 删除字典数据
       await this.ctx.model.SysDictData.deleteOne({ _id: this._toObjectId(dictCode) });
+      
+      // 记录需要更新缓存的字典类型
       dictTypes.add(dictData.dictType);
       deletedCount++;
     }
-
+    
+    // 更新缓存
     for (const dictType of dictTypes) {
       const dictDatas = await this.selectDictDataByType(dictType);
       await DictUtils.setDictCache(app, dictType, dictDatas);
     }
-
+    
     return deletedCount;
   }
+
 }
 
 module.exports = DictDataService;
+
+

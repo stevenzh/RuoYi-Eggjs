@@ -51,10 +51,15 @@ class JobService extends Service {
    * @return {array} 定时任务列表
    */
   async selectJobList(params = {}) {
-    const filter = this._buildFilter(params);
-    const list = await this.ctx.model.SysJob.find(filter).lean();
-    this._addNextValidTime(list);
-    return this.ctx.helper.normalizeIds(list, 'jobId') || [];
+    try {
+      const filter = this._buildFilter(params);
+      const list = await this.ctx.model.SysJob.find(filter).lean();
+      this._addNextValidTime(list);
+      return this.ctx.helper.normalizeIds(list, 'jobId') || [];
+    } catch (err) {
+      ctx.logger.error("查询定时任务列表失败:", err);
+      throw err;
+    }
   }
 
   /**
@@ -63,8 +68,13 @@ class JobService extends Service {
    * @return {number} 总数
    */
   async selectJobCount(job = {}) {
-    const filter = this._buildFilter(job);
-    return await this.ctx.model.SysJob.countDocuments(filter);
+    try {
+      const filter = this._buildFilter(job);
+      return await this.ctx.model.SysJob.countDocuments(filter);
+    } catch (err) {
+      ctx.logger.error("查询定时任务总数失败:", err);
+      return 0;
+    }
   }
 
   /**
@@ -73,10 +83,15 @@ class JobService extends Service {
    * @return {object} 定时任务信息
    */
   async selectJobById(jobId) {
-    const doc = await this.ctx.model.SysJob.findById(this._toObjectId(jobId)).lean();
-    if (doc && doc._id != null) doc.jobId = doc._id;
-    if (doc) this._addNextValidTime(doc);
-    return doc;
+    try {
+      const doc = await this.ctx.model.SysJob.findById(this._toObjectId(jobId)).lean();
+      if (doc && doc._id != null) doc.jobId = doc._id;
+      if (doc) this._addNextValidTime(doc);
+      return doc;
+    } catch (err) {
+      ctx.logger.error("查询定时任务详情失败:", err);
+      throw err;
+    }
   }
 
   /**
@@ -84,8 +99,13 @@ class JobService extends Service {
    * @return {array} 定时任务列表
    */
   async selectJobAll() {
-    const list = await this.ctx.model.SysJob.find().lean();
-    return this.ctx.helper.normalizeIds(list, 'jobId');
+    try {
+      const list = await this.ctx.model.SysJob.find().lean();
+      return this.ctx.helper.normalizeIds(list, 'jobId');
+    } catch (err) {
+      ctx.logger.error("查询所有定时任务失败:", err);
+      throw err;
+    }
   }
 
   /**
@@ -96,41 +116,51 @@ class JobService extends Service {
   async insertJob(job) {
     const { ctx } = this;
 
-    if (!job.jobName || job.jobName.trim() === "") {
-      throw new Error("任务名称不能为空");
-    }
-    if (!job.invokeTarget || job.invokeTarget.trim() === "") {
-      throw new Error("调用目标字符串不能为空");
-    }
-    if (!job.cronExpression || job.cronExpression.trim() === "") {
-      throw new Error("cron执行表达式不能为空");
-    }
+    try {
+      // 校验必填字段
+      if (!job.jobName || job.jobName.trim() === "") {
+        throw new Error("任务名称不能为空");
+      }
+      if (!job.invokeTarget || job.invokeTarget.trim() === "") {
+        throw new Error("调用目标字符串不能为空");
+      }
+      if (!job.cronExpression || job.cronExpression.trim() === "") {
+        throw new Error("cron执行表达式不能为空");
+      }
 
-    job.jobGroup = job.jobGroup || "DEFAULT";
-    job.misfirePolicy = job.misfirePolicy || "3";
-    job.concurrent = job.concurrent || "1";
-    job.status = job.status || "1";
-    job.createBy = ctx.state.user ? ctx.state.user.userName : "system";
+      // 设置默认值
+      job.jobGroup = job.jobGroup || "DEFAULT";
+      job.misfirePolicy = job.misfirePolicy || "3";
+      job.concurrent = job.concurrent || "1";
+      job.status = job.status || "1"; // 新任务默认暂停状态
 
-    const result = await ctx.model.SysJob.create({
-      jobName: job.jobName,
-      jobGroup: job.jobGroup,
-      invokeTarget: job.invokeTarget,
-      cronExpression: job.cronExpression,
-      misfirePolicy: job.misfirePolicy,
-      concurrent: job.concurrent,
-      status: job.status,
-      remark: job.remark,
-      createBy: job.createBy,
-      createTime: new Date(),
-    });
+      // 设置创建信息
+      job.createBy = ctx.state.user ? ctx.state.user.userName : "system";
 
-    job._id = result._id;
-    if (job.status === "0") {
-      await this.createBullJob(job);
+      // 插入数据库
+      const result = await ctx.model.SysJob.create({
+        jobName: job.jobName,
+        jobGroup: job.jobGroup,
+        invokeTarget: job.invokeTarget,
+        cronExpression: job.cronExpression,
+        misfirePolicy: job.misfirePolicy,
+        concurrent: job.concurrent,
+        status: job.status,
+        remark: job.remark,
+        createBy: job.createBy,
+        createTime: new Date(),
+      });
+
+      job._id = result._id;
+      if (job.status === "0") {
+        await this.createBullJob(job);
+      }
+
+      return result._id;
+    } catch (err) {
+      ctx.logger.error("新增定时任务失败:", err);
+      throw err;
     }
-
-    return result._id;
   }
 
   /**
@@ -140,32 +170,42 @@ class JobService extends Service {
    */
   async updateJob(job) {
     const { ctx } = this;
-    const oldJob = await this.selectJobById(job.jobId);
-    if (!oldJob) throw new Error("任务不存在");
 
-    job.updateBy = ctx.state.user ? ctx.state.user.userName : "system";
+    try {
+      // 获取原任务信息
+      const oldJob = await this.selectJobById(job.jobId);
+      if (!oldJob) throw new Error("任务不存在");
 
-    const setFields = { updateTime: new Date() };
-    if (job.jobName) setFields.jobName = job.jobName;
-    if (job.jobGroup) setFields.jobGroup = job.jobGroup;
-    if (job.invokeTarget) setFields.invokeTarget = job.invokeTarget;
-    if (job.cronExpression) setFields.cronExpression = job.cronExpression;
-    if (job.misfirePolicy != null) setFields.misfirePolicy = job.misfirePolicy;
-    if (job.concurrent != null) setFields.concurrent = job.concurrent;
-    if (job.status != null) setFields.status = job.status;
-    if (job.remark) setFields.remark = job.remark;
-    if (job.updateBy) setFields.updateBy = job.updateBy;
+      // 设置更新信息
+      job.updateBy = ctx.state.user ? ctx.state.user.userName : "system";
 
-    const result = await ctx.model.SysJob.updateOne(
-      { _id: this._toObjectId(job.jobId) },
-      { $set: setFields }
-    );
+      const setFields = { updateTime: new Date() };
+      if (job.jobName) setFields.jobName = job.jobName;
+      if (job.jobGroup) setFields.jobGroup = job.jobGroup;
+      if (job.invokeTarget) setFields.invokeTarget = job.invokeTarget;
+      if (job.cronExpression) setFields.cronExpression = job.cronExpression;
+      if (job.misfirePolicy != null) setFields.misfirePolicy = job.misfirePolicy;
+      if (job.concurrent != null) setFields.concurrent = job.concurrent;
+      if (job.status != null) setFields.status = job.status;
+      if (job.remark) setFields.remark = job.remark;
+      if (job.updateBy) setFields.updateBy = job.updateBy;
 
-    if (result.modifiedCount > 0) {
-      await this.updateBullJob(job, oldJob);
+      // 更新数据库
+      const result = await ctx.model.SysJob.updateOne(
+        { _id: this._toObjectId(job.jobId) },
+        { $set: setFields }
+      );
+
+      if (result.modifiedCount > 0) {
+        // 使用 Bull 更新任务调度
+        await this.updateBullJob(job, oldJob);
+      }
+
+      return result.modifiedCount;
+    } catch (err) {
+      ctx.logger.error("修改定时任务失败:", err);
+      throw err;
     }
-
-    return result.modifiedCount;
   }
 
   /**
@@ -175,22 +215,27 @@ class JobService extends Service {
    */
   async deleteJobByIds(jobIds) {
     const { ctx } = this;
-    const jobs = [];
-    for (const jobId of jobIds) {
-      const job = await this.selectJobById(jobId);
-      if (job) jobs.push(job);
+
+    try {
+      const jobs = [];
+      for (const jobId of jobIds) {
+        const job = await this.selectJobById(jobId);
+        if (job) jobs.push(job);
+      }
+
+      const ids = jobIds.map(id => this._toObjectId(id));
+      const result = await ctx.model.SysJob.deleteMany({ _id: { $in: ids } });
+
+      for (const job of jobs) {
+        await this.deleteBullJob(job);
+      }
+
+      return result.deletedCount;
+    } catch (err) {
+      ctx.logger.error("删除定时任务失败:", err);
+      throw err;
     }
-
-    const ids = jobIds.map(id => this._toObjectId(id));
-    const result = await ctx.model.SysJob.deleteMany({ _id: { $in: ids } });
-
-    for (const job of jobs) {
-      await this.deleteBullJob(job);
-    }
-
-    return result.deletedCount;
   }
-
 
   /**
    * 修改任务状态
@@ -199,26 +244,38 @@ class JobService extends Service {
    */
   async changeStatus(job) {
     const { ctx } = this;
-    const fullJob = await this.selectJobById(job.jobId);
-    if (!fullJob) throw new Error("任务不存在");
 
-    fullJob.status = job.status;
-    fullJob.updateBy = ctx.state.user ? ctx.state.user.userName : "system";
+    try {
+      // 获取完整的任务信息
+      const fullJob = await this.selectJobById(job.jobId);
+      if (!fullJob) throw new Error("任务不存在");
 
-    const result = await ctx.model.SysJob.updateOne(
-      { _id: this._toObjectId(job.jobId) },
-      { $set: { status: job.status, updateBy: fullJob.updateBy, updateTime: new Date() } }
-    );
+      // 更新状态
+      fullJob.status = job.status;
+      fullJob.updateBy = ctx.state.user ? ctx.state.user.userName : "system";
 
-    if (result.modifiedCount > 0) {
-      if (job.status === "0") {
-        await this.resumeBullJob(fullJob);
-      } else {
-        await this.pauseBullJob(fullJob);
+      // 更新数据库
+      const result = await ctx.model.SysJob.updateOne(
+        { _id: this._toObjectId(job.jobId) },
+        { $set: { status: job.status, updateBy: fullJob.updateBy, updateTime: new Date() } }
+      );
+
+      if (result.modifiedCount > 0) {
+        // 使用 Bull 根据状态启动或暂停任务
+        if (job.status === "0") {
+          // 恢复任务
+          await this.resumeBullJob(fullJob);
+        } else {
+          // 暂停任务
+          await this.pauseBullJob(fullJob);
+        }
       }
-    }
 
-    return result.modifiedCount;
+      return result.modifiedCount;
+    } catch (err) {
+      ctx.logger.error("修改任务状态失败:", err);
+      throw err;
+    }
   }
 
   /**
@@ -227,9 +284,18 @@ class JobService extends Service {
    * @return {boolean} 是否成功
    */
   async run(job) {
-    const fullJob = await this.selectJobById(job.jobId);
-    if (!fullJob) return false;
-    return await this.runBullJob(fullJob);
+    try {
+      // 获取完整的任务信息
+      const fullJob = await this.selectJobById(job.jobId);
+
+      if (!fullJob) return false;
+
+      // 使用 Bull 立即执行任务
+      return await this.runBullJob(fullJob);
+    } catch (err) {
+      ctx.logger.error("立即执行任务失败:", err);
+      return false;
+    }
   }
 
   /**

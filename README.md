@@ -175,7 +175,7 @@ sql/   # Mongo 初始化脚本
 Navicat Premium 连接Mongo服务，创建数据库 ruoyi
 
 -- 导入数据表和数据
-选择数据库右键 Excute JavaScript File.. 选择文件 sql/mysql/ry_20250522.sql 后执行
+选择数据库右键 Excute JavaScript File.. 选择文件 sql/ruoyi.js 后执行
 ```
 
 ### 4. 配置数据库和 Redis

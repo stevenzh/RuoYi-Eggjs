@@ -1,6 +1,5 @@
 /**
  * 代码生成-表信息模型
- * 对应 MySQL gen_table 表
  */
 module.exports = app => {
   const mongoose = app.mongoose;

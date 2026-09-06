@@ -1,6 +1,5 @@
 /**
  * 用户-岗位关联模型
- * 对应 MySQL sys_user_post 表
  */
 module.exports = app => {
   const mongoose = app.mongoose;

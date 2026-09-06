@@ -1,6 +1,5 @@
 /**
  * 岗位模型
- * 对应 MySQL sys_post 表
  */
 module.exports = app => {
   const mongoose = app.mongoose;

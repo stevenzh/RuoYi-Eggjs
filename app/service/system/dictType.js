@@ -24,8 +24,8 @@ class DictTypeService extends Service {
     if (params.dictType) {
       filter.dictType = { $regex: params.dictType, $options: 'i' };
     }
-    const beginTime = (params.params && params.params.beginTime) || params.beginTime;
-    const endTime = (params.params && params.params.endTime) || params.endTime;
+    const beginTime = (params.params && params.params.beginTime) || params['params[beginTime]'];
+    const endTime = (params.params && params.params.endTime) || params['params[endTime]'];
     if (beginTime) {
       filter.createTime = { ...filter.createTime, $gte: new Date(beginTime) };
     }
@@ -178,21 +178,27 @@ class DictTypeService extends Service {
   async deleteDictTypeByIds(dictIds) {
     const { app } = this;
     let deletedCount = 0;
-
+    
     for (const dictId of dictIds) {
+      // 查询字典类型
       const dictType = await this.selectDictTypeById(dictId);
       if (!dictType) continue;
 
+      
+      // 检查是否有字典数据
       const count = await this.ctx.model.SysDictData.countDocuments({ dictType: dictType.dictType });
       if (count > 0) {
         throw new Error(`${dictType.dictName}已分配,不能删除`);
       }
-
+      
+      // 删除字典类型
       await this.ctx.model.SysDictType.deleteOne({ _id: this._toObjectId(dictId) });
+      
+      // 删除对应缓存
       await DictUtils.removeDictCache(app, dictType.dictType);
       deletedCount++;
     }
-
+    
     return deletedCount;
   }
 

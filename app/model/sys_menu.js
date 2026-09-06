@@ -1,6 +1,5 @@
 /**
  * 菜单模型
- * 对应 MySQL sys_menu 表
  */
 module.exports = app => {
   const mongoose = app.mongoose;

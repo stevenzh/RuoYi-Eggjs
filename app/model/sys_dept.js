@@ -1,6 +1,5 @@
 /**
  * 部门模型
- * 对应 MySQL sys_dept 表
  */
 module.exports = app => {
   const mongoose = app.mongoose;

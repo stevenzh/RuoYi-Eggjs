@@ -1,6 +1,5 @@
 /**
  * 定时任务日志模型
- * 对应 MySQL sys_job_log 表
  */
 module.exports = app => {
   const mongoose = app.mongoose;

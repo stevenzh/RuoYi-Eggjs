@@ -30,8 +30,8 @@ class OperlogService extends Service {
     if (params.operName) {
       filter.operName = { $regex: params.operName, $options: 'i' };
     }
-    const beginTime = (params.params && params.params.beginTime) || params.beginTime;
-    const endTime = (params.params && params.params.endTime) || params.endTime;
+    const beginTime = (params.params && params.params.beginTime) || params['params[beginTime]'];
+    const endTime = (params.params && params.params.endTime) || params['params[endTime]'];
     if (beginTime) {
       filter.operTime = { ...filter.operTime, $gte: new Date(beginTime) };
     }

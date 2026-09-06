@@ -18,7 +18,7 @@ class UserService extends Service {
    */
   _normalizeUser(user) {
     if (!user) return user;
-    const normalized = { ...user, userId: user._id };
+    const normalized = { ...user, userId: user._id.toString() };
     if (user.deptId && typeof user.deptId === 'object' && user.deptId._id) {
       normalized.dept = user.deptId;
     }
@@ -52,8 +52,8 @@ class UserService extends Service {
     }
 
     // 时间范围
-    const beginTime = (params.params && params.params.beginTime) || params.beginTime;
-    const endTime = (params.params && params.params.endTime) || params.endTime;
+    const beginTime = (params.params && params.params.beginTime) || params['params[beginTime]'];
+    const endTime = (params.params && params.params.endTime) || params['params[endTime]'];
     if (beginTime) {
       filter.createTime = filter.createTime || {};
       filter.createTime.$gte = new Date(beginTime);
@@ -220,40 +220,37 @@ class UserService extends Service {
    * @return {boolean} true-唯一 false-不唯一
    */
   async checkUserNameUnique(user) {
-    const existing = await this.model.SysUser.findOne({
+    const vuser =  await this.model.SysUser.findOne({
       userName: user.userName,
       delFlag: '0',
     }).lean();
-
-    return !existing || existing._id.toString() === (user.userId || user._id);
+    return this._normalizeUser(vuser);
   }
 
   /**
    * 校验手机号是否唯一
    * @param {object} user - 用户对象
-   * @return {boolean} true-唯一 false-不唯一
+   * @return {object} 用户信息
    */
   async checkPhoneUnique(user) {
-    const existing = await this.model.SysUser.findOne({
+    const vuser = await this.model.SysUser.findOne({
       phonenumber: user.phonenumber,
       delFlag: '0',
     }).lean();
-
-    return !existing || existing._id.toString() === (user.userId || user._id);
+    return this._normalizeUser(vuser);
   }
 
   /**
    * 校验邮箱是否唯一
    * @param {object} user - 用户对象
-   * @return {boolean} true-唯一 false-不唯一
+   * @return {object} 用户信息
    */
   async checkEmailUnique(user) {
-    const existing = await this.model.SysUser.findOne({
+    const vuser = await this.model.SysUser.findOne({
       email: user.email,
       delFlag: '0',
     }).lean();
-
-    return !existing || existing._id.toString() === (user.userId || user._id);
+    return this._normalizeUser(vuser);
   }
 
   async selectDeptByDeptId(deptId) {
@@ -277,6 +274,10 @@ class UserService extends Service {
     return [deptId, ...children.map(d => d._id)];
   }
 
+  /**
+   * 校验用户是否允许操作
+   * @param {object} user - 用户对象
+   */
   checkUserAllowed(user) {
     if (user && this.ctx.helper.isAdmin(user._id ? user.userName : user)) {
       throw new Error("不允许操作超级管理员用户");
@@ -344,6 +345,8 @@ class UserService extends Service {
    */
   async updateUser(user) {
     const { ctx } = this;
+
+    // 设置更新信息
     user.updateBy = ctx.state.user.userName;
 
     const setFields = { updateTime: new Date() };
@@ -538,6 +541,8 @@ class UserService extends Service {
    */
   async updateUserProfile(user) {
     const { ctx } = this;
+
+    // 设置更新信息
     user.updateBy = ctx.state.user.userName;
 
     const setFields = { updateTime: new Date() };

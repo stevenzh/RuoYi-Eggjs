@@ -49,8 +49,8 @@ class GenService extends Service {
     if (params.tableComment != null && params.tableComment !== '') {
       conditions.push(`lower(table_comment) like lower(concat('%', ${this._escape(params.tableComment)}, '%'))`);
     }
-    const beginTime = (params.params && params.params.beginTime) || params.beginTime;
-    const endTime = (params.params && params.params.endTime) || params.endTime;
+    const beginTime = (params.params && params.params.beginTime) || params['params[beginTime]'];
+    const endTime = (params.params && params.params.endTime) || params['params[endTime]'];
     if (beginTime != null && beginTime !== '') {
       conditions.push(`date_format(create_time,'%Y%m%d') >= date_format(${this._escape(beginTime)},'%Y%m%d')`);
     }

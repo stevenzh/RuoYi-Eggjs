@@ -1,6 +1,5 @@
 /**
  * 字典类型模型
- * 对应 MySQL sys_dict_type 表
  */
 module.exports = app => {
   const mongoose = app.mongoose;
